@@ -1,0 +1,4 @@
+./packages/app/android
+node_modules
+.envrc
+*.http
