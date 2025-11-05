@@ -5,7 +5,7 @@ import { z } from "zod";
 import { type AuthEnv } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { WalletService } from "@/services/wallet";
-import { WalletSchema } from "@/src/repo/schema/schema";
+import { WalletSchema, WalletSelectSchema } from "@/src/repo/schema/schema";
 import { WalletStorage } from "@/src/repo/wallet";
 
 export const wallet = new Hono<{ Variables: AuthEnv }>()
@@ -40,5 +40,33 @@ export const wallet = new Hono<{ Variables: AuthEnv }>()
 				return c.json({ message: error.message }, 500);
 			}
 			return c.json(data);
+		},
+	)
+	.get(
+		"/",
+		describeRoute({
+			description: "Get user wallet",
+			responses: {
+				200: {
+					description: "Get user wallet",
+					content: {
+						"application/json": {
+							schema: resolver(WalletSelectSchema),
+						},
+					},
+				},
+			},
+		}),
+		async (c) => {
+			const user = c.get("user");
+			const wallet = new WalletService(new WalletStorage(db));
+			try {
+				const data = await wallet.getUserWallet({ userId: user!.id });
+				console.log(data, "INSIDE");
+				return c.json(data ?? null);
+			} catch (error) {
+				console.error(error);
+				return c.json({ message: error }, 500);
+			}
 		},
 	);

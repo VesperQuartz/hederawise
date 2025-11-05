@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { client } from "@hederawise/shared/client";
+import { convertToArray } from "@hederawise/shared/utils";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -12,19 +14,81 @@ const Login = () => {
 	const [loading, startTransition] = React.useTransition();
 	const auth = async () => {
 		startTransition(async () => {
-			await authClient.signIn.social(
-				{
+			try {
+				const res = await authClient.signIn.social({
 					provider: "google",
 					callbackURL: "/",
-				},
-				{
-					onError: (error) => {
-						console.log(error, "FROM AUTH");
-					},
-				},
-			);
+					requestSignUp: true,
+				});
+				if (!res.error) {
+					const session = await authClient.getSession();
+					const userWallet = await client.api.wallets.$get(
+						{},
+						{
+							headers: {
+								Authorization: `Bearer ${session.data?.session.token}`,
+							},
+						},
+					);
+					if (!userWallet.ok) {
+						return;
+					}
+					const checkWallet = await userWallet.json();
+					if (checkWallet) {
+						return;
+					}
+					const account = await client.api.accounts.$post(
+						{
+							json: {},
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${session.data?.session.token}`,
+							},
+						},
+					);
+					if (!account.ok) {
+						return;
+					}
+					const data = await account.json();
+					await client.api.tokens.link.$post(
+						{
+							json: {
+								userAccountId: data.accountId!,
+								userPrivateKey: convertToArray(
+									data.privateKey as unknown as Record<string, number>,
+								),
+							},
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${session.data?.session.token}`,
+							},
+						},
+					);
+					await client.api.wallets.$post(
+						{
+							json: {
+								accountId: data.accountId!,
+								privateKey: convertToArray(
+									data.privateKey as unknown as Record<string, number>,
+								),
+								publicKey: convertToArray(
+									data.publicKey as unknown as Record<string, number>,
+								),
+							},
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${session.data?.session.token}`,
+							},
+						},
+					);
+				}
+			} catch (error) {
+				console.error(error);
+			}
 		});
-		console.log("auth_end");
 	};
 	return (
 		<View className="">
@@ -45,14 +109,15 @@ const Login = () => {
 				</View>
 			</View>
 			<View className="bg-white p-3 flex gap-4">
-				<Text className="text-2xl">Get up and running.</Text>
+				<Text className="text-2xl">Get right back in</Text>
 				<View className="mt-10">
 					<Button
-						className="bg-blue-500 flex flex-row"
+						className="bg-blue-500 flex flex-row gap-1"
 						disabled={loading}
 						onPress={auth}
 					>
-						<Text className="font-bold text-white">GET STARTED</Text>
+						<Ionicons name="logo-google" size={20} color={"white"} />
+						<Text className="font-bold text-white">LOG IN</Text>
 						<Text>
 							{loading && (
 								<ActivityIndicator size={"small"} className="text-white" />
@@ -61,14 +126,14 @@ const Login = () => {
 					</Button>
 				</View>
 				<View className="flex items-center flex-row justify-center">
-					<Text className="text-xl">Get an account?</Text>
+					<Text className="text-xl">Don&apos;t have an account?</Text>
 					<Button
 						className="-ml-6"
 						variant={"link"}
 						size={"lg"}
-						onPress={() => router.push("/login")}
+						onPress={() => router.push("/signup")}
 					>
-						<Text className="text-xl text-blue-500">Sign in</Text>
+						<Text className="text-xl text-blue-500">Register</Text>
 					</Button>
 				</View>
 			</View>
