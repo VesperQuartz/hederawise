@@ -1,5 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
+	"references": [
+		{
+			"path": "../shared/tsconfig.json"
+		}
+	],
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",

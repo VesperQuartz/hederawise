@@ -4,15 +4,18 @@
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "Preserve",
+		"composite": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
+		"declaration": true,
     "allowJs": true,
 
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+		"emitDeclarationOnly": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "noEmit": false,
 
     // Best practices
     "strict": true,

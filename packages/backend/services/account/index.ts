@@ -8,19 +8,24 @@ export class AccountService {
 		this.api = api;
 	}
 	async createAccount() {
-		const privateKey = PrivateKey.generateECDSA();
-		const publicKey = privateKey.publicKey;
-		const transaction = new AccountCreateTransaction()
-			.setECDSAKeyWithAlias(publicKey)
-			.setInitialBalance(10);
-		const txResponse = await transaction.execute(client);
-		const receipt = await txResponse.getReceipt(client);
-		const accountId = receipt.accountId;
-		client.close();
-		return {
-			accountId: accountId?.toString(),
-			privateKey: privateKey.toBytes(),
-			publicKey: publicKey.toBytes(),
-		};
+		try {
+			const privateKey = PrivateKey.generateECDSA();
+			const publicKey = privateKey.publicKey;
+			const transaction = new AccountCreateTransaction()
+				.setECDSAKeyWithAlias(publicKey)
+				.setInitialBalance(10)
+				.freezeWith(client);
+			const txResponse = await transaction.execute(client);
+			const receipt = await txResponse.getReceipt(client);
+			const accountId = receipt.accountId;
+			return {
+				accountId: accountId?.toString(),
+				privateKey: privateKey.toBytes(),
+				publicKey: publicKey.toBytes(),
+			};
+		} catch (error) {
+			console.log(error);
+			throw error;
+		}
 	}
 }

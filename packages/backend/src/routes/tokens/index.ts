@@ -94,13 +94,13 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 		async (ctx) => {
 			const { userAccountId, userPrivateKey } = ctx.req.valid("json");
 			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(
-				token.tokenLink({ userAccountId, userPrivateKey }),
-			);
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+			try {
+				const data = await token.tokenLink({ userAccountId, userPrivateKey });
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				return ctx.json({ message: `An error has Occured ${error}` }, 500);
 			}
-			return ctx.json(data);
 		},
 	)
 	.post(

@@ -9,6 +9,7 @@ import {
 	timestamp,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z from "zod";
 import { user } from "./auth.schema";
 
 const encryptedData = <TData>(name: string) =>
@@ -57,7 +58,12 @@ export type Token = typeof token.$inferInsert;
 export type TokenSelect = typeof token.$inferSelect;
 export const TokenSchema = createInsertSchema(token);
 export const TokenSelectSchema = createSelectSchema(token);
+
+export type Wallet = typeof wallet.$inferInsert;
+export const WalletSchema = createInsertSchema(wallet, {
+	privateKey: z.array(z.number()),
+	publicKey: z.array(z.number()),
+});
+
 export type WalletSelect = typeof wallet.$inferSelect;
-// export type UserWalletSelect = typeof userRelation.$inferSelect;
-export const WalletSchema = createInsertSchema(wallet);
 export const WalletSelectSchema = createSelectSchema(wallet);

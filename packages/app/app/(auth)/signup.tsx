@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { client } from "@hederawise/shared/client";
-import { to } from "await-to-ts";
+import { convertToArray } from "@hederawise/shared/utils";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -21,12 +21,59 @@ const Signup = () => {
 			});
 			if (!res.error) {
 				const session = await authClient.getSession();
-				const [] = await to(
-					client.api.accounts.$post({
+				const account = await client.api.accounts.$post(
+					{
 						json: {},
-					}),
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${session.data?.session.token}`,
+						},
+					},
 				);
-				console.log(session);
+				if (!account.ok) {
+					console.log(account.statusText);
+					return;
+				}
+				const data = await account.json();
+				console.log("ID", data.accountId);
+				console.log(
+					"Key",
+					convertToArray(data.privateKey as unknown as Record<string, number>),
+				);
+				await client.api.tokens.link.$post(
+					{
+						json: {
+							userAccountId: data.accountId!,
+							userPrivateKey: convertToArray(
+								data.privateKey as unknown as Record<string, number>,
+							),
+						},
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${session.data?.session.token}`,
+						},
+					},
+				);
+				await client.api.wallets.$post(
+					{
+						json: {
+							accountId: data.accountId!,
+							privateKey: convertToArray(
+								data.privateKey as unknown as Record<string, number>,
+							),
+							publicKey: convertToArray(
+								data.publicKey as unknown as Record<string, number>,
+							),
+						},
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${session.data?.session.token}`,
+						},
+					},
+				);
 			}
 		});
 	};

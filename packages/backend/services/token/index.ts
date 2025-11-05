@@ -63,31 +63,25 @@ export class TokenService {
 		userPrivateKey: Array<number>;
 	}) {
 		try {
-			const [error, linking] = await to(
-				new TokenAssociateTransaction()
-					.setAccountId(userAccountId)
-					.setTokenIds([env.TOKEN_ID!])
-					.freezeWith(client)
-					.sign(PrivateKey.fromBytesECDSA(Uint8Array.from(userPrivateKey))),
+			const linking = new TokenAssociateTransaction()
+				.setAccountId(userAccountId)
+				.setTokenIds([env.TOKEN_ID!])
+				.freezeWith(client);
+
+			const signTx = await linking.sign(
+				PrivateKey.fromBytes(Uint8Array.from(userPrivateKey)),
 			);
-			if (error) {
-				console.error(error);
-				throw error;
-			}
-			const [linkError, linkRes] = await to(
-				(await linking.execute(client)).getReceipt(client),
-			);
-			if (linkError) {
-				console.error(linkError);
-				throw linkError;
-			}
+			const response = await signTx.execute(client);
+
+			const receipt = await response.getReceipt(client);
 			return {
-				tokenId: linkRes.tokenId?.toString(),
-				accountId: linkRes.accountId?.toString(),
-				message: `Successfully linked ${linkRes.status}`,
+				tokenId: receipt.tokenId?.toString(),
+				accountId: receipt.accountId?.toString(),
+				message: `Successfully linked ${receipt.status}`,
 			};
 		} catch (e) {
 			console.log(e);
+			throw e;
 		}
 	}
 

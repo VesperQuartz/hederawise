@@ -1,14 +1,7 @@
-import {
-	AccountId,
-	Hbar,
-	Mnemonic,
-	ScheduleCreateTransaction,
-	Timestamp,
-	TransferTransaction,
-} from "@hashgraph/sdk";
 import { Scalar } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 import { upgradeWebSocket, websocket } from "hono/bun";
+import { hc } from "hono/client";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { poweredBy } from "hono/powered-by";
@@ -19,10 +12,10 @@ import { openAPIRouteHandler, validator } from "hono-openapi";
 import z from "zod";
 import { type AuthEnv, auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { test } from "./repo/schema/schema";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
 import { tokens } from "./routes/tokens";
+import { wallet } from "./routes/wallet";
 
 const app = new Hono<{
 	Variables: AuthEnv;
@@ -72,6 +65,7 @@ app.use("*", async (c, next) => {
 export const routes = app
 	.route("/", accounts)
 	.route("/", tokens)
+	.route("/", wallet)
 	.route("/", lookups)
 	.get("/healthcheck", (c) => {
 		return c.json({
@@ -81,25 +75,7 @@ export const routes = app
 	})
 	.get("/hello", (c) => {
 		return c.text("Hello Hono!!!");
-	})
-	.get("/crypto", async (ctx) => {
-		const payload = await db.query.test.findFirst();
-		return ctx.json(payload);
-	})
-	.post(
-		"/crypto",
-		validator(
-			"json",
-			z.object({
-				data: z.array(z.number()),
-			}),
-		),
-		async (ctx) => {
-			const { data } = ctx.req.valid("json");
-			await db.insert(test).values({ data });
-			return ctx.json({ message: "success" });
-		},
-	);
+	});
 
 routes.get(
 	"/openapi",

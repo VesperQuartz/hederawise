@@ -14,7 +14,7 @@ export const accounts = new Hono<{ Variables: AuthEnv }>()
 		describeRoute({
 			description: "Create an account for users",
 			responses: {
-				200: {
+				201: {
 					description: "Create an account for users",
 					content: {
 						"application/json": {
@@ -36,8 +36,9 @@ export const accounts = new Hono<{ Variables: AuthEnv }>()
 			const account = new AccountService(new ApiService());
 			const [error, data] = await to(account.createAccount());
 			if (error) {
-				return c.json({ message: error.message }, 500);
+				console.log(error);
+				return c.json({ message: error }, 500);
 			}
-			return c.json(data);
+			return c.json(data, 201);
 		},
 	);
