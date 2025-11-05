@@ -53,7 +53,12 @@ app.use("*", async (ctx, next) => {
 
 app.use("*", async (c, next) => {
 	const session = c.get("session");
-	const allowedPath = ["/api/docs", "/api/openapi", "/api/healthcheck"];
+	const allowedPath = [
+		"/api/docs",
+		"/api/openapi",
+		"/api/healthcheck",
+		"/api/hello",
+	];
 	if (!session) {
 		const pathname = c.req.path;
 		if (allowedPath.includes(pathname)) {
@@ -64,7 +69,7 @@ app.use("*", async (c, next) => {
 	return next();
 });
 
-const routes = app
+export const routes = app
 	.route("/", accounts)
 	.route("/", tokens)
 	.route("/", lookups)

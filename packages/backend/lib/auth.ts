@@ -3,13 +3,20 @@ import { env } from "@hederawise/shared/env/env";
 import to from "await-to-ts";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin, bearer, haveIBeenPwned, openAPI } from "better-auth/plugins";
+import {
+	admin,
+	bearer,
+	createAuthMiddleware,
+	haveIBeenPwned,
+	openAPI,
+} from "better-auth/plugins";
 import { MailServer } from "@/services/mail";
 import { db } from "./db";
 import { transporter } from "./mail";
 import { ac, adminRole, customRole, userRole } from "./permission";
 
 export const auth = betterAuth({
+	baseURL: env.BETTER_AUTH_URL,
 	rateLimit: {
 		window: 10,
 		max: 100,
@@ -19,28 +26,7 @@ export const auth = betterAuth({
 		google: {
 			clientId: env.GOOGLE_CLIENT_ID!,
 			clientSecret: env.GOOGLE_CLIENT_SECRET,
-		},
-	},
-	emailAndPassword: {
-		enabled: true,
-		minPasswordLength: 6,
-		requireEmailVerification: true,
-	},
-	emailVerification: {
-		sendOnSignUp: true,
-		sendOnSignIn: true,
-		autoSignInAfterVerification: true,
-		sendVerificationEmail: async ({ user, url }) => {
-			const mailer = new MailServer(transporter);
-			const [error] = await to(
-				mailer.sendVerificationEmail({
-					recipient: user.email,
-					tokenUrl: url,
-				}),
-			);
-			if (error) {
-				throw new Error(error.message);
-			}
+			disableImplicitSignUp: true,
 		},
 	},
 	database: drizzleAdapter(db, {

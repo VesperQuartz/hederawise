@@ -66,8 +66,6 @@ const RootLayout = () => {
 		return null;
 	}
 
-	console.log(isDarkColorScheme);
-
 	return (
 		<ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
 			<StatusBar style={isDarkColorScheme ? "light" : "dark"} />

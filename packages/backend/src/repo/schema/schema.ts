@@ -3,7 +3,6 @@ import CryptoJs from "crypto-js";
 import { extractTablesRelationalConfig, relations } from "drizzle-orm";
 import {
 	customType,
-	jsonb,
 	pgTable,
 	serial,
 	text,
@@ -38,11 +37,6 @@ export const token = pgTable("token", {
 	privateKey: encryptedData("private_key").$type<number[]>().notNull(),
 	createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
 	updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
-});
-
-export const test = pgTable("test", {
-	id: serial("id").primaryKey(),
-	data: encryptedData("data"),
 });
 
 export const wallet = pgTable("wallet", {
