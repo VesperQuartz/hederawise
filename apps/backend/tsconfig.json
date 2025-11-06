@@ -1,19 +1,17 @@
 {
-	"references": [
-		{
-			"path": "../../apps/backend/tsconfig.json"
-		}
-	],
 	"compilerOptions": {
 		// Environment setup & latest features
 		"lib": [
 			"ESNext"
 		],
 		"target": "ESNext",
+		"outDir": "./dist",
+		"rootDir": "./src",
 		"module": "Preserve",
 		"composite": true,
 		"moduleDetection": "force",
 		"jsx": "react-jsx",
+		"declaration": true,
 		"allowJs": true,
 		// Bundler mode
 		"moduleResolution": "bundler",
@@ -23,8 +21,6 @@
 		"noEmit": false,
 		// Best practices
 		"strict": true,
-		"outDir": "./dist",
-		"rootDir": "./src",
 		"skipLibCheck": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,
@@ -35,8 +31,8 @@
 		"noPropertyAccessFromIndexSignature": false,
 		"baseUrl": "./src",
 		"paths": {
-			"@/src/*": [
-				"./src/*"
+			"@/*": [
+				"./*"
 			]
 		}
 	},

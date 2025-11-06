@@ -1,0 +1,46 @@
+{
+	"name": "@hederawise/server",
+	"scripts": {
+		"db:push": "drizzle-kit push",
+		"db:migrate": "drizzle-kit migrate",
+		"db:generate": "drizzle-kit generate",
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"check-types": "tsc --noEmit",
+		"auth:generate": "pnpm dlx @better-auth/cli generate --output ./src/repo/schema/auth.schema.ts",
+		"dev": "bun --bun --watch src/index.ts"
+	},
+	"dependencies": {
+		"@better-auth/expo": "catalog:",
+		"@hashgraph/sdk": "catalog:",
+		"@hederawise/shared": "workspace:*",
+		"@hono/standard-validator": "catalog:",
+		"@hono/zod-validator": "catalog:",
+		"@maca134/hono-passport": "catalog:",
+		"@neondatabase/serverless": "catalog:",
+		"@paralleldrive/cuid2": "catalog:",
+		"@scalar/hono-api-reference": "catalog:",
+		"await-to-ts": "catalog:",
+		"better-auth": "catalog:",
+		"crypto-js": "catalog:",
+		"date-fns": "catalog:",
+		"drizzle-orm": "catalog:",
+		"drizzle-zod": "catalog:",
+		"hono": "catalog:",
+		"hono-openapi": "catalog:",
+		"ky": "catalog:",
+		"mjml": "catalog:",
+		"nodemailer": "catalog:",
+		"ts-pattern": "catalog:",
+		"zod": "catalog:",
+		"zod-openapi": "catalog:"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/crypto-js": "catalog:",
+		"@types/mjml": "catalog:",
+		"@types/nodemailer": "catalog:",
+		"@types/passport-http-bearer": "catalog:",
+		"drizzle-kit": "catalog:"
+	}
+}

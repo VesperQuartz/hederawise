@@ -3,3 +3,4 @@ node_modules
 .envrc
 *.http
 .turbo
+dist
