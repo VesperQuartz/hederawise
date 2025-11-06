@@ -10,7 +10,7 @@ import {
 } from "@hashgraph/sdk";
 import { env } from "@hederawise/shared/env/env";
 import to from "await-to-ts";
-import { client } from "@/lib/hedera";
+import { client } from "@/src/lib/hedera";
 import type { TokenImpl } from "@/src/repo/token";
 
 export class TokenService {

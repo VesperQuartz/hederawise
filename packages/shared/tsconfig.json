@@ -23,6 +23,8 @@
 		"noEmit": false,
 		// Best practices
 		"strict": true,
+		"outDir": "./lib",
+		"rootDir": ".",
 		"skipLibCheck": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedIndexedAccess": true,

@@ -2,9 +2,9 @@ import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
-import { type AuthEnv } from "@/lib/auth";
-import { AccountService } from "@/services/account";
-import { ApiService } from "@/services/api/index";
+import { type AuthEnv } from "@/src/lib/auth";
+import { AccountService } from "@/src/services/account";
+import { ApiService } from "@/src/services/api/index";
 
 export const accounts = new Hono<{ Variables: AuthEnv }>()
 	.basePath("/accounts")

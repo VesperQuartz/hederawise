@@ -9,10 +9,9 @@ import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { Platform } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { NAV_THEME } from "~/lib/constants";
-import { useColorScheme } from "~/lib/use-color-scheme";
 import { AsyncProvider } from "~/providers/async";
 export const unstable_settings = {
 	// Ensure that reloading on `/modal` keeps a back button present.
@@ -44,7 +43,7 @@ const usePlatformSpecificSetup = Platform.select({
 });
 const RootLayout = () => {
 	const hasMounted = React.useRef(false);
-	const { isDarkColorScheme } = useColorScheme();
+	const [isDarkColorScheme] = useColorScheme();
 	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
 	useIsomorphicLayoutEffect(() => {

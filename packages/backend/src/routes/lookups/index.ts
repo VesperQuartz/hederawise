@@ -2,8 +2,8 @@ import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
 import { z } from "zod";
-import { type AuthEnv } from "@/lib/auth";
-import { ApiService } from "@/services/api/index";
+import type { AuthEnv } from "@/src/lib/auth";
+import { ApiService } from "@/src/services/api";
 
 export const lookups = new Hono<{ Variables: AuthEnv }>()
 	.basePath("/lookups")

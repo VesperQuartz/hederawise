@@ -1,0 +1,31 @@
+import { z } from "zod";
+export declare const envSchema: z.ZodReadonly<z.ZodObject<{
+    BETTER_AUTH_SECRET: z.ZodOptional<z.ZodString>;
+    BETTER_AUTH_URL: z.ZodOptional<z.ZodString>;
+    EXPO_PUBLIC_BASE_URL: z.ZodString;
+    DB_URL: z.ZodOptional<z.ZodString>;
+    GMAIL_USER: z.ZodOptional<z.ZodString>;
+    GMAIL_PASS: z.ZodOptional<z.ZodString>;
+    GOOGLE_CLIENT_ID: z.ZodOptional<z.ZodString>;
+    GOOGLE_CLIENT_SECRET: z.ZodOptional<z.ZodString>;
+    OPERATOR_ID: z.ZodOptional<z.ZodString>;
+    OPERATOR_KEY: z.ZodOptional<z.ZodString>;
+    NODE_URL: z.ZodOptional<z.ZodString>;
+    TOKEN_ID: z.ZodOptional<z.ZodString>;
+    DB_KEY: z.ZodOptional<z.ZodString>;
+}, z.core.$strip>>;
+export declare const env: Readonly<{
+    EXPO_PUBLIC_BASE_URL: string;
+    BETTER_AUTH_SECRET?: string | undefined;
+    BETTER_AUTH_URL?: string | undefined;
+    DB_URL?: string | undefined;
+    GMAIL_USER?: string | undefined;
+    GMAIL_PASS?: string | undefined;
+    GOOGLE_CLIENT_ID?: string | undefined;
+    GOOGLE_CLIENT_SECRET?: string | undefined;
+    OPERATOR_ID?: string | undefined;
+    OPERATOR_KEY?: string | undefined;
+    NODE_URL?: string | undefined;
+    TOKEN_ID?: string | undefined;
+    DB_KEY?: string | undefined;
+}>;

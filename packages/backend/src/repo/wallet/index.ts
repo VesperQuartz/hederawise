@@ -1,6 +1,6 @@
 import to from "await-to-ts";
 import { eq } from "drizzle-orm";
-import type { Db } from "@/lib/db";
+import type { Db } from "@/src/lib/db";
 import { type Wallet, type WalletSelect, wallet } from "../schema/schema";
 
 export type WalletImpl = {

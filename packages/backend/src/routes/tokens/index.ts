@@ -2,11 +2,11 @@ import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
-import { type AuthEnv } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { TokenService } from "@/services/token";
+import { type AuthEnv } from "@/src/lib/auth";
+import { db } from "@/src/lib/db";
 import { TokenSelectSchema } from "@/src/repo/schema/schema";
 import { TokenStorage } from "@/src/repo/token";
+import { TokenService } from "@/src/services/token";
 
 export const tokens = new Hono<{ Variables: AuthEnv }>()
 	.basePath("/tokens")

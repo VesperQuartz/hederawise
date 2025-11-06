@@ -1,5 +1,5 @@
 import to from "await-to-ts";
-import type { Db } from "@/lib/db";
+import type { Db } from "@/src/lib/db";
 import { type Token, type TokenSelect, token } from "../schema/schema";
 
 export type TokenImpl = {

@@ -1,0 +1,13 @@
+{
+	"$schema": "https://turborepo.com/schema.json",
+	"tasks": {
+		"android": {},
+		"check-types": {
+			"dependsOn": ["^check-types"]
+		},
+		"dev": {
+			"persistent": true,
+			"cache": false
+		}
+	}
+}

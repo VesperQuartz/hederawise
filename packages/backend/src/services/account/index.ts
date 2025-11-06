@@ -1,5 +1,5 @@
-import { AccountCreateTransaction, Hbar, PrivateKey } from "@hashgraph/sdk";
-import { client } from "@/lib/hedera";
+import { AccountCreateTransaction, PrivateKey } from "@hashgraph/sdk";
+import { client } from "@/src/lib/hedera";
 import type { ApiService } from "../api/index";
 
 export class AccountService {
