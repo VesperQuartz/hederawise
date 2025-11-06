@@ -4,7 +4,7 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:generate": "drizzle-kit generate",
-		"build": "tsc",
+		"build": "tsc -b",
 		"start": "node dist/index.js",
 		"check-types": "tsc --noEmit",
 		"auth:generate": "pnpm dlx @better-auth/cli generate --output ./src/repo/schema/auth.schema.ts",

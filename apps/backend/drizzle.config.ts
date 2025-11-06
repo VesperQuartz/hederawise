@@ -1,4 +1,4 @@
-import { env } from "@hederawise/shared/env/env";
+import { env } from "@hederawise/shared/src/env";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

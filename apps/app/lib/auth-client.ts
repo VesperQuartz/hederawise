@@ -1,5 +1,5 @@
 import { expoClient } from "@better-auth/expo/client";
-import { env } from "@hederawise/shared/env/env";
+import { env } from "@hederawise/shared/src/env";
 import { createAuthClient } from "better-auth/react";
 import * as SecureStore from "expo-secure-store";
 

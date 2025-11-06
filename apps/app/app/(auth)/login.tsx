@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { client } from "@hederawise/shared/client";
-import { convertToArray } from "@hederawise/shared/utils";
+import { client } from "@hederawise/shared/src/client";
+import { convertToArray } from "@hederawise/shared/src/utils";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";

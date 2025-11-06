@@ -1,5 +1,5 @@
 import { expo } from "@better-auth/expo";
-import { env } from "@hederawise/shared/src/env/env";
+import { env } from "@hederawise/shared/src/env";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, bearer, haveIBeenPwned, openAPI } from "better-auth/plugins";

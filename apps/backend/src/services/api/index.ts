@@ -1,5 +1,5 @@
 import type { AccountId } from "@hashgraph/sdk";
-import { env } from "@hederawise/shared/src/env/env";
+import { env } from "@hederawise/shared/src/env";
 import { to } from "await-to-ts";
 import ky from "ky";
 

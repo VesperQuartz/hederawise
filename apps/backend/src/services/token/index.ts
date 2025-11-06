@@ -8,7 +8,7 @@ import {
 	TokenType,
 	TransferTransaction,
 } from "@hashgraph/sdk";
-import { env } from "@hederawise/shared/src/env/env";
+import { env } from "@hederawise/shared/src/env";
 import to from "await-to-ts";
 import { client } from "@/lib/hedera";
 import type { TokenImpl } from "@/repo/token";

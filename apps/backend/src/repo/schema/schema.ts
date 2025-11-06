@@ -1,4 +1,4 @@
-import { env } from "@hederawise/shared/src/env/env";
+import { env } from "@hederawise/shared/src/env";
 import CryptoJs from "crypto-js";
 import { relations } from "drizzle-orm";
 import {

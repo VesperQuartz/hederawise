@@ -1,7 +1,14 @@
 {
 	"$schema": "https://turborepo.com/schema.json",
 	"tasks": {
-		"android": {},
+		"build": {
+			"dependsOn": ["^build", "^prebuild"],
+			"outputs": ["dist/**"]
+		},
+		"android": {
+			"dependsOn": ["^android"],
+			"outputs": ["android/**"]
+		},
 		"check-types": {
 			"dependsOn": ["^check-types"]
 		},

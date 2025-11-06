@@ -4,10 +4,9 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"app": "pnpm run -F @hederawise/app android",
-		"prebuild:app": "pnpm run -F @hederawise/app prebuild",
-		"server": "pnpm run -F @hederawise/server dev",
-		"push": "pnpm run -F @hederawise/server db:push"
+		"app": "turbo run android",
+		"dev": "turbu run dev",
+		"push": "turbo run db:push"
 	},
 	"pnpm": {
 		"overrides": {

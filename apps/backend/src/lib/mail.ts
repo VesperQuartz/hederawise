@@ -1,4 +1,4 @@
-import { env } from "@hederawise/shared/src/env/env";
+import { env } from "@hederawise/shared/src/env";
 import { createTransport } from "nodemailer";
 
 export const transporter = createTransport({
