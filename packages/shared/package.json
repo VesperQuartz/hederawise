@@ -13,9 +13,9 @@
 	"license": "ISC",
 	"packageManager": "pnpm@10.18.1",
 	"dependencies": {
-		"zod": "catalog:"
+		"zod": "^4.1.12"
 	},
 	"devDependencies": {
-		"@types/node": "catalog:"
+		"@types/node": "^24.10.0"
 	}
 }

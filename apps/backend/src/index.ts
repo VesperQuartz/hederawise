@@ -11,6 +11,7 @@ import { openAPIRouteHandler } from "hono-openapi";
 import { type AuthEnv, auth } from "./lib/auth";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
+import { plans } from "./routes/plans";
 import { tokens } from "./routes/tokens";
 import { wallet } from "./routes/wallet";
 
@@ -64,6 +65,7 @@ export const routes = app
 	.route("/", tokens)
 	.route("/", wallet)
 	.route("/", lookups)
+	.route("/", plans)
 	.get("/healthcheck", (c) => {
 		return c.json({
 			context: c.get("requestId"),

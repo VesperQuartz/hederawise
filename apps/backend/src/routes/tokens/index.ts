@@ -6,7 +6,9 @@ import { type AuthEnv } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { TokenSelectSchema } from "@/repo/schema/schema";
 import { TokenStorage } from "@/repo/token";
+import { WalletStorage } from "@/repo/wallet";
 import { TokenService } from "@/services/token";
+import { WalletService } from "@/services/wallet";
 
 export const tokens = new Hono<{ Variables: AuthEnv }>()
 	.basePath("/tokens")
@@ -108,8 +110,6 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 		validator(
 			"json",
 			z.object({
-				userAccountId: z.string(),
-				userPrivateKey: z.array(z.number()),
 				amount: z.number(),
 			}),
 		),
@@ -131,10 +131,18 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const { userAccountId, userPrivateKey, amount } = ctx.req.valid("json");
+			const user = ctx.get("user");
+			const wallet = new WalletService(new WalletStorage(db));
+			const { amount } = ctx.req.valid("json");
 			const token = new TokenService(new TokenStorage(db));
+			const userPrivateKey = await wallet.getUserWallet({ userId: user?.id! });
+			const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
 			const [error, data] = await to(
-				token.tokenTransfer({ userAccountId, userPrivateKey, amount }),
+				token.tokenTransfer({
+					userAccountId: userAccountId?.accountId!,
+					userPrivateKey: userPrivateKey?.privateKey!,
+					amount,
+				}),
 			);
 			if (error) {
 				ctx.json({ message: error.message }, 500);

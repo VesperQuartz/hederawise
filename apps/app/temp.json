@@ -1,0 +1,14 @@
+{
+		"@babel/core": "catalog:",
+		"@tailwindcss/postcss": "catalog:",
+		"@types/react": "catalog:",
+		"ajv": "catalog:",
+		"eslint": "catalog:",
+		"eslint-config-expo": "catalog:",
+		"eslint-config-prettier": "catalog:",
+		"postcss": "catalog:",
+		"prettier": "catalog:",
+		"prettier-plugin-tailwindcss": "catalog:",
+		"tailwindcss": "catalog:",
+		"typescript": "catalog:"
+}

@@ -1,5 +1,6 @@
 import {
 	AccountBalance,
+	type AccountBalanceJson,
 	AccountBalanceQuery,
 	PrivateKey,
 	TokenAssociateTransaction,
@@ -118,7 +119,11 @@ export class TokenService {
 		}
 	}
 
-	async getUserTokenBalance({ userAccountId }: { userAccountId: string }) {
+	async getUserTokenBalance({
+		userAccountId,
+	}: {
+		userAccountId: string;
+	}): Promise<AccountBalanceJson> {
 		try {
 			const [error, balance] = await to(
 				new AccountBalanceQuery().setAccountId(userAccountId).execute(client),
@@ -127,11 +132,7 @@ export class TokenService {
 				console.error(error);
 				throw error;
 			}
-			const data = this.getTokenBalance({
-				accountBalance: balance,
-				tokenId: env.TOKEN_ID!,
-			});
-			return data;
+			return balance.toJSON();
 		} catch (error) {
 			console.log(error);
 			throw error;

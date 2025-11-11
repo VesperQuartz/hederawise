@@ -1,13 +1,15 @@
 {
 	"$schema": "https://turborepo.com/schema.json",
+	"globalDependencies": [".envrc"],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build", "^prebuild"],
-			"outputs": ["dist/**"]
+			"outputs": ["dist/**"],
+			"inputs": ["$TURBO_DEFAULT$", ".envrc"]
 		},
 		"android": {
-			"dependsOn": ["^android"],
-			"outputs": ["android/**"]
+			"cache": false,
+			"persistent": true
 		},
 		"check-types": {
 			"dependsOn": ["^check-types"]
