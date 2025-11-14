@@ -13,7 +13,7 @@ export class AccountService {
 			const publicKey = privateKey.publicKey;
 			const transaction = new AccountCreateTransaction()
 				.setECDSAKeyWithAlias(publicKey)
-				.setInitialBalance(10)
+				.setInitialBalance(100)
 				.freezeWith(client);
 			const txResponse = await transaction.execute(client);
 			const receipt = await txResponse.getReceipt(client);

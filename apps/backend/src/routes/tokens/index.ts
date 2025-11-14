@@ -66,6 +66,100 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 		},
 	)
 	.post(
+		"/nft",
+		validator("json", z.object({})),
+		describeRoute({
+			description: "NFT Token",
+			responses: {
+				200: {
+					description: "NFT Token",
+					content: {
+						"application/json": {
+							schema: resolver(TokenSelectSchema),
+						},
+					},
+				},
+			},
+		}),
+		async (ctx) => {
+			const token = new TokenService(new TokenStorage(db));
+			const [error, data] = await to(token.createNFT());
+			if (error) {
+				ctx.json({ message: error.message }, 500);
+			}
+			return ctx.json(data);
+		},
+	)
+	.post(
+		"/nft/mint",
+		validator("json", z.object({})),
+		describeRoute({
+			description: "NFT Token mint",
+			responses: {
+				200: {
+					description: "NFT Token mint",
+					content: {
+						"application/json": {
+							schema: resolver(TokenSelectSchema),
+						},
+					},
+				},
+			},
+		}),
+		async (ctx) => {
+			const token = new TokenService(new TokenStorage(db));
+			const [error, data] = await to(token.mintNFT());
+			if (error) {
+				ctx.json({ message: error.message }, 500);
+			}
+			return ctx.json(data);
+		},
+	)
+	.post(
+		"/nft/transfer",
+		validator(
+			"json",
+			z.object({
+				tokenSerial: z.number(),
+			}),
+		),
+		describeRoute({
+			description: "Token",
+			responses: {
+				200: {
+					description: "Token",
+					content: {
+						"application/json": {
+							schema: resolver(
+								z.object({
+									message: z.string(),
+								}),
+							),
+						},
+					},
+				},
+			},
+		}),
+		async (ctx) => {
+			const user = ctx.get("user");
+			const wallet = new WalletService(new WalletStorage(db));
+			const token = new TokenService(new TokenStorage(db));
+			const { tokenSerial } = ctx.req.valid("json");
+			const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
+			const [error, data] = await to(
+				token.nftTransfer({
+					userAccountId: userAccountId?.accountId!,
+					tokenSerial: tokenSerial,
+				}),
+			);
+			if (error) {
+				ctx.json({ message: error.message }, 500);
+			}
+			return ctx.json(data);
+		},
+	)
+
+	.post(
 		"/link",
 		validator(
 			"json",
@@ -150,7 +244,6 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			return ctx.json(data);
 		},
 	)
-
 	.get(
 		"/balance/:userAccountId",
 		validator(

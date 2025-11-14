@@ -1,23 +1,19 @@
 import { env } from "@hederawise/shared/src/env";
 import CryptoJs from "crypto-js";
-import { eq, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
-	boolean,
 	customType,
 	decimal,
 	index,
-	interval,
+	integer,
 	pgTable,
 	serial,
 	text,
 	timestamp,
-	unique,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { uniqueIndex } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { once } from "stream";
 import z from "zod";
-import { db } from "@/lib/db";
 import { user } from "./auth.schema";
 
 const encryptedData = <TData>(name: string) =>
@@ -59,7 +55,7 @@ export const wallet = pgTable(
 		createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
 		updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
 	},
-	(table) => [index("index_on_userid").on(table.userId)],
+	(table) => [index("index_on_userid#3").on(table.userId)],
 );
 
 export const plans = pgTable(
@@ -72,11 +68,15 @@ export const plans = pgTable(
 			.$type<"day" | "week" | "month" | "once">()
 			.notNull(),
 		nextDueDate: timestamp("next_due_date", {
-			mode: "date",
+			mode: "string",
+			withTimezone: true,
+		}).notNull(),
+		dueDate: timestamp("due_date", {
+			mode: "string",
 			withTimezone: true,
 		}).notNull(),
 		userId: text("user_id").references(() => user.id),
-		saved: decimal("amount", { mode: "number" }).default(0),
+		saved: decimal("saved", { mode: "number" }).default(0),
 		status: text("status")
 			.$type<"active" | "paused" | "completed" | "cancelled">()
 			.default("active"),
@@ -91,8 +91,8 @@ export const plans = pgTable(
 	},
 	(table) => [
 		index("index_next_due_data").on(table.nextDueDate),
-		index("index_on_userid").on(table.userId),
-		unique("index_on_name_and_userid").on(table.name, table.userId),
+		index("index_on_userid#1").on(table.userId),
+		uniqueIndex("index_on_name_and_userid").on(table.name, table.userId),
 	],
 );
 
@@ -102,19 +102,30 @@ export const transactions = pgTable(
 		id: serial("id").primaryKey(),
 		amount: decimal("amount", { mode: "number" }).notNull(),
 		userId: text("user_id").references(() => user.id),
-		planId: text("plan_id").references(() => plans.userId),
+		planId: integer("plan_id").references(() => plans.id),
+		nftSerial: integer("serial"),
 		status: text("status")
 			.$type<"pending" | "completed" | "cancelled">()
 			.default("pending"),
 		createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
 		updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
 	},
-	(table) => [index("index_on_userid").on(table.userId)],
+	(table) => [index("index_on_userid#2").on(table.userId)],
 );
 
-export const userRelation = relations(user, ({ one, many }) => ({
+export const userRelation = relations(user, ({ one }) => ({
 	wallet: one(wallet),
-	plans: many(plans),
+}));
+
+export const plansRelation = relations(plans, ({ many }) => ({
+	transactions: many(transactions),
+}));
+
+export const transactionsRelation = relations(transactions, ({ one }) => ({
+	plan: one(plans, {
+		fields: [transactions.planId],
+		references: [plans.id],
+	}),
 }));
 
 export type Token = typeof token.$inferInsert;
@@ -132,19 +143,27 @@ export type WalletSelect = typeof wallet.$inferSelect;
 export const WalletSelectSchema = createSelectSchema(wallet);
 
 export const PlanSchema = createInsertSchema(plans, {
+	amount: z.coerce.number<string>(),
 	nextDueDate: z.coerce.string().optional(),
 	interval: z.enum(["day", "week", "month", "once"]),
 	status: z.enum(["active", "paused", "completed", "cancelled"]),
+	dueDate: z.coerce.string<Date>(),
 });
 
 export const PlanSelectSchema = createSelectSchema(plans, {
 	nextDueDate: z.coerce.string(),
+	dueDate: z.coerce.string<Date>(),
 });
 
 export type Plan = typeof plans.$inferInsert;
 export type PlanSelect = typeof plans.$inferSelect;
+export type PlanSelectWithT =
+	| (PlanSelect & { transactions: Transaction[] | undefined })[]
+	| undefined;
 
 export type Transaction = typeof transactions.$inferInsert;
 export type TransactionSelect = typeof transactions.$inferSelect;
-export const TransactionSchema = createInsertSchema(transactions);
+export const TransactionSchema = createInsertSchema(transactions, {
+	status: z.enum(["pending", "completed", "cancelled"]),
+});
 export const TransactionSelectSchema = createSelectSchema(transactions);

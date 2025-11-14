@@ -1,5 +1,8 @@
+import { client } from "@hederawise/shared/src/client";
+import type { InferRequestType } from "hono/client";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 import { mmkvStorage } from "~/lib/mmkv";
 import { User } from "~/types";
 
@@ -9,6 +12,20 @@ type AuthState = {
 	setUser: (user: User) => void;
 	deleteUser: () => void;
 	setIsLoggedIn: (isLoggedIn: boolean) => void;
+};
+
+type Plan = InferRequestType<typeof client.api.plans.$post>["json"] | undefined;
+
+type PlanState = {
+	data: Plan;
+	updatePlan: (plan: Omit<Partial<Plan>, "status">) => void;
+	clearPlan: () => void;
+};
+
+type AmountState = {
+	amount: number;
+	setAmount: (amount: number) => void;
+	clearAmount: () => void;
 };
 
 type HomeTabsState = {
@@ -43,4 +60,26 @@ export const useHomeTabsStore = create<HomeTabsState>()(
 			storage: createJSONStorage(() => mmkvStorage),
 		},
 	),
+);
+
+export const usePlanStore = create<PlanState>()(
+	persist(
+		immer((set) => ({
+			data: undefined,
+			updatePlan: (plan) => set(() => ({ data: plan })),
+			clearPlan: () => set(() => ({ data: undefined })),
+		})),
+		{
+			name: "plan-storage",
+			storage: createJSONStorage(() => mmkvStorage),
+		},
+	),
+);
+
+export const useAmountStore = create<AmountState>()(
+	immer((set) => ({
+		amount: 0,
+		setAmount: (amount) => set(() => ({ amount: amount })),
+		clearAmount: () => set(() => ({ amount: undefined })),
+	})),
 );

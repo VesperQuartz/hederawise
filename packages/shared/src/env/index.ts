@@ -3,7 +3,9 @@ export const envSchema = z
 	.object({
 		BETTER_AUTH_SECRET: z.string().optional(),
 		BETTER_AUTH_URL: z.string().optional(),
-		EXPO_PUBLIC_BASE_URL: z.string(),
+		EXPO_PUBLIC_BASE_URL: z
+			.string()
+			.default("https://strong-carefully-fly.ngrok-free.app"),
 		DB_URL: z.string().optional(),
 		GMAIL_USER: z.string().optional(),
 		GMAIL_PASS: z.string().optional(),

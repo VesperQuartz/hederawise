@@ -16,7 +16,7 @@ export const convertCurrency = (
 
 export const createNextDueDate = (
 	interval: "once" | "day" | "week" | "month",
-	nextDueDate: Date,
+	nextDueDate: string,
 ) => {
 	return match(interval)
 		.with("once", () => undefined)

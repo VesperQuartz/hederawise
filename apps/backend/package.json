@@ -4,8 +4,8 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:generate": "drizzle-kit generate",
-		"build": "tsc -b",
-		"start": "node dist/index.js",
+		"build": "bun run ./entrypoint.ts",
+		"start": "bun dist/index.js",
 		"check-types": "tsc --noEmit",
 		"auth:generate": "pnpm dlx @better-auth/cli generate --output ./src/repo/schema/auth.schema.ts",
 		"dev": "bun --bun --watch src/index.ts"

@@ -13,6 +13,9 @@ export const auth = betterAuth({
 		max: 100,
 		enabled: true,
 	},
+	// emailAndPassword: {
+	// 	enabled: true,
+	// },
 	socialProviders: {
 		google: {
 			clientId: env.GOOGLE_CLIENT_ID!,
@@ -24,6 +27,10 @@ export const auth = betterAuth({
 		provider: "pg",
 	}),
 	trustedOrigins: ["hederawise://"],
+	advanced: {
+		disableOriginCheck: true,
+		disableCSRFCheck: true,
+	},
 	plugins: [
 		expo(),
 		admin({

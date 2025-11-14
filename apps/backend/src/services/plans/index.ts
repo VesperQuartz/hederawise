@@ -8,7 +8,10 @@ export class PlansService {
 		try {
 			const create = await this.planStore.createPlan({
 				...plan,
-				nextDueDate: createNextDueDate(plan.interval, new Date())!,
+				nextDueDate: createNextDueDate(
+					plan.interval,
+					new Date().toISOString(),
+				)?.toISOString()!,
 			});
 			return create;
 		} catch (error) {
@@ -29,6 +32,21 @@ export class PlansService {
 		try {
 			const plan = await this.planStore.getPlan(userId);
 			return plan;
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async getUserPlanWithT(userId: string) {
+		try {
+			const plan = await this.planStore.getUserPlanWithTransactions(userId);
+			return plan?.map((items) => ({
+				...items,
+				transactions: items.transactions?.reduce(
+					(acc, curr) => acc + curr.amount,
+					0,
+				),
+			}));
 		} catch (error) {
 			throw error;
 		}

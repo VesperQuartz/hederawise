@@ -5,16 +5,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Text } from "~/components/ui/text";
 import { authClient } from "~/lib/auth-client";
 
-const HomeLayout = () => {
+export const unstable_settings = {
+	initialRouteName: "index",
+};
+
+const DashboardLayout = () => {
 	const session = authClient.useSession();
 	return (
-		<Tabs screenOptions={{}}>
+		<Tabs>
 			<Tabs.Screen
-				name="index"
+				name="(home)"
 				options={{
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons size={size} color={color} name="home" />
+						<Ionicons size={size} color={"#2b7fff"} name="home" />
 					),
+					tabBarLabel: "Home",
 					headerTitle: "",
 					headerShadowVisible: false,
 					headerLeft: ({ onPress }) => {
@@ -47,4 +52,4 @@ const HomeLayout = () => {
 	);
 };
 
-export default HomeLayout;
+export default DashboardLayout;

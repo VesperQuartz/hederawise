@@ -1,3 +1,4 @@
+import { env } from "@hederawise/shared/src/env";
 import { Scalar } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 import { upgradeWebSocket, websocket } from "hono/bun";
@@ -13,6 +14,7 @@ import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
 import { plans } from "./routes/plans";
 import { tokens } from "./routes/tokens";
+import { transactions } from "./routes/transactions";
 import { wallet } from "./routes/wallet";
 
 const app = new Hono<{
@@ -39,6 +41,7 @@ app.use("*", async (ctx, next) => {
 
 	ctx.set("user", session.user);
 	ctx.set("session", session.session);
+	console.log("session", session);
 	return next();
 });
 
@@ -66,6 +69,7 @@ export const routes = app
 	.route("/", wallet)
 	.route("/", lookups)
 	.route("/", plans)
+	.route("/", transactions)
 	.get("/healthcheck", (c) => {
 		return c.json({
 			context: c.get("requestId"),

@@ -26,10 +26,15 @@ export const lookups = new Hono<{ Variables: AuthEnv }>()
 		}),
 		async (c) => {
 			const lookup = new ApiService();
-			const [error, data] = await to(lookup.getExchangeRate());
-			if (error) {
-				return c.json({ message: error.message }, 500);
+			try {
+				const data = await lookup.getExchangeRate();
+				return c.json(data);
+			} catch (error) {
+				if (error instanceof Error) {
+					return c.json({ message: error.message }, 500);
+				} else {
+					return c.json({ message: "An error has Occured" }, 500);
+				}
 			}
-			return c.json(data);
 		},
 	);

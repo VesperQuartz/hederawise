@@ -9,5 +9,7 @@ onlyBuiltDependencies:
   - protobufjs
   - unrs-resolver
 
+injectWorkspacePackages: true
+
 overrides:
   lightningcss: 1.30.1

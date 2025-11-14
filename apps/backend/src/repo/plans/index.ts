@@ -1,13 +1,22 @@
 import { createNextDueDate } from "@hederawise/shared/src/utils";
 import { to } from "await-to-ts";
-import { and, eq, lte } from "drizzle-orm";
+import { and, eq, lte, sum } from "drizzle-orm";
 import type { Db } from "@/lib/db";
-import { type Plan, type PlanSelect, plans } from "../schema/schema";
+import {
+	type Plan,
+	type PlanSelect,
+	type PlanSelectWithT,
+	plans,
+	transactions,
+} from "../schema/schema";
 
 export interface PlanImpl {
 	createPlan: (plan: Plan) => Promise<PlanSelect | undefined>;
 	getPlans: () => Promise<PlanSelect[]>;
-	getPlan: (userid: string) => Promise<PlanSelect | undefined>;
+	getUserPlanWithTransactions: (userId: string) => Promise<PlanSelectWithT>;
+	getPlan: (
+		userid: string,
+	) => Promise<{ data: PlanSelect[]; totalAmount: number } | undefined>;
 	getScheduledPlans: () => Promise<PlanSelect[]>;
 	updatePlan: (plan: Partial<Plan>) => Promise<PlanSelect>;
 	updateNextDueDate: () => Promise<PlanSelect[] | undefined>;
@@ -35,21 +44,41 @@ export class PlanRepo implements PlanImpl {
 		return data ?? [];
 	}
 	async getPlan(userId: string) {
+		const sumValue = await this.planStore
+			.select({ sum: sum(transactions.amount) })
+			.from(transactions)
+			.where(eq(transactions.userId, userId));
 		const [error, data] = await to(
-			this.planStore.query.plans.findFirst({
+			this.planStore.query.plans.findMany({
 				where: eq(plans.userId, userId),
 			}),
 		);
 		if (error) {
 			throw error;
 		}
-		return data;
+		return { data, totalAmount: Number(sumValue[0]?.sum) ?? 0 };
 	}
+
+	async getUserPlanWithTransactions(userId: string) {
+		try {
+			const result = await this.planStore.query.plans.findMany({
+				where: eq(plans.userId, userId),
+				with: {
+					transactions: true,
+				},
+			});
+			console.log(result);
+			return result;
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	async getScheduledPlans() {
 		const [error, data] = await to(
 			this.planStore.query.plans.findMany({
 				where: and(
-					lte(plans.nextDueDate, new Date()),
+					lte(plans.nextDueDate, new Date().toISOString()),
 					eq(plans.status, "active"),
 				),
 			}),
@@ -83,7 +112,10 @@ export class PlanRepo implements PlanImpl {
 			this.planStore
 				.update(plans)
 				.set({
-					nextDueDate: createNextDueDate(plan.interval, plan.nextDueDate),
+					nextDueDate: createNextDueDate(
+						plan.interval,
+						plan.nextDueDate,
+					)?.toISOString(),
 				})
 				.where(eq(plans.id, plan.id!))
 				.returning(),

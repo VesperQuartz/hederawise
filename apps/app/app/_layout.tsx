@@ -23,9 +23,10 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { authClient } from "~/lib/auth-client";
 import { NAV_THEME } from "~/lib/constants";
 import { AsyncProvider } from "~/providers/async";
+import { usePlanStore } from "~/store/store";
 
 export const unstable_settings = {
-	initialRouteName: "(home)",
+	initialRouteName: "(dashboard)",
 };
 const LIGHT_THEME: Theme = {
 	...DefaultTheme,
@@ -55,6 +56,9 @@ const usePlatformSpecificSetup = Platform.select({
 
 const RootLayout = () => {
 	const hasMounted = React.useRef(false);
+
+	const planStore = usePlanStore();
+
 	const isDarkColorScheme = useColorScheme();
 	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 	const session = authClient.useSession();
@@ -99,12 +103,65 @@ const RootLayout = () => {
 				<ThemeProvider value={LIGHT_THEME}>
 					<StatusBar style={isDarkColorScheme === "dark" ? "light" : "dark"} />
 					<AsyncProvider>
-						<Stack screenOptions={{ headerShown: false }}>
+						<Stack>
 							<Stack.Protected guard={!!session.data}>
-								<Stack.Screen name="(home)" />
+								<Stack.Screen
+									name="(dashboard)"
+									options={{ headerShown: false }}
+								/>
+								<Stack.Screen
+									name="choose-plan"
+									options={{
+										title: "Create a Plan",
+										headerTitleStyle: {
+											fontSize: 20,
+											color: "#0a2e65",
+										},
+										headerShadowVisible: false,
+									}}
+								/>
+								<Stack.Screen
+									name="general"
+									options={{
+										title: planStore.data?.name ?? "Create a Plan",
+										headerTitleStyle: {
+											fontSize: 20,
+											color: "#0a2e65",
+										},
+										headerShadowVisible: false,
+									}}
+								/>
+								<Stack.Screen
+									name="summary"
+									options={{
+										headerBackTitle: undefined,
+										headerTitle: "",
+										headerTitleStyle: {
+											fontSize: 20,
+											color: "#0a2e65",
+										},
+										headerShadowVisible: false,
+									}}
+								/>
+								<Stack.Screen
+									name="payment"
+									options={{
+										headerTitleStyle: {
+											fontSize: 20,
+											color: "#0a2e65",
+										},
+										headerShown: false,
+										headerShadowVisible: false,
+									}}
+								/>
 							</Stack.Protected>
 							<Stack.Protected guard={!!!session.data}>
-								<Stack.Screen name="(auth)" />
+								<Stack.Screen
+									name="(auth)"
+									options={{
+										headerShown: false,
+									}}
+								/>
 							</Stack.Protected>
 						</Stack>
 					</AsyncProvider>

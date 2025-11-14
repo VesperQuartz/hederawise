@@ -1,6 +1,11 @@
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 import React from "react";
 import { View } from "react-native";
+import { planQueryOptions } from "~/hooks/api";
+import { authClient } from "~/lib/auth-client";
+import { useAmountStore, usePlanStore } from "~/store/store";
 import { ChoosePlan } from "./choose-plan";
 import { Button } from "./ui/button";
 import { Text } from "./ui/text";
@@ -8,9 +13,24 @@ import { Text } from "./ui/text";
 const options = [10, 15, 20, 25, 30, 40];
 
 export const AddCash = () => {
-	const [value, setValue] = React.useState<number | undefined>(0);
+	const sessions = authClient.useSession();
+	const router = useRouter();
+	const amount = useAmountStore();
+	const planStore = usePlanStore();
 	const sheetRef = React.useRef<BottomSheetModal>(null);
-	console.log(value);
+	const savingsPlan = useQuery(
+		planQueryOptions({
+			token: sessions.data?.session.token!,
+		}),
+	);
+
+	if (savingsPlan.isPending) {
+	}
+
+	if (savingsPlan.error) {
+		console.error(savingsPlan.error);
+	}
+
 	return (
 		<View className="flex flex-col gap-2">
 			<View>
@@ -20,8 +40,14 @@ export const AddCash = () => {
 				{options.map((option) => (
 					<Button
 						onPress={() => {
-							setValue(option);
-							sheetRef.current?.present();
+							amount.setAmount(option);
+							if (!savingsPlan.data) {
+								planStore.updatePlan({ ...planStore.data, amount: option });
+								router.push("/choose-plan");
+							} else {
+								planStore.updatePlan({ ...planStore.data, amount: option });
+								sheetRef.current?.present();
+							}
 						}}
 						variant={"outline"}
 						size={"lg"}
@@ -39,7 +65,7 @@ export const AddCash = () => {
 					<Text className="text-4xl text-blue-500">+</Text>
 				</Button>
 			</View>
-			<ChoosePlan sheetRef={sheetRef} />
+			{savingsPlan.data ? <ChoosePlan sheetRef={sheetRef} /> : null}
 		</View>
 	);
 };

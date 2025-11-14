@@ -59,10 +59,10 @@ export const wallet = new Hono<{ Variables: AuthEnv }>()
 		}),
 		async (c) => {
 			const user = c.get("user");
+			console.log("WALLET", user);
 			const wallet = new WalletService(new WalletStorage(db));
 			try {
 				const data = await wallet.getUserWallet({ userId: user!.id });
-				console.log(data, "INSIDE");
 				return c.json(data ?? null);
 			} catch (error) {
 				console.error(error);

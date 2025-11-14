@@ -1,5 +1,7 @@
 import { client } from "@hederawise/shared/src/client";
-import { queryOptions } from "@tanstack/react-query";
+import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import type { InferRequestType } from "hono/client";
+import { parseResponse } from "hono/client";
 
 export const userBalanceQueryOptions = ({
 	token,
@@ -12,24 +14,17 @@ export const userBalanceQueryOptions = ({
 		enabled: !!accountId,
 		queryKey: ["userBalance", token, accountId],
 		queryFn: async () => {
-			try {
-				const response = await client.api.tokens.balance[":userAccountId"].$get(
+			const result = await parseResponse(
+				client.api.tokens.balance[":userAccountId"].$get(
 					{
 						param: {
 							userAccountId: accountId,
 						},
 					},
 					{ headers: { Authorization: `Bearer ${token}` } },
-				);
-				if (!response.ok) {
-					throw new Error("Failed to fetch user balance");
-				}
-				const data = await response.json();
-				return data;
-			} catch (error) {
-				console.error(error);
-				throw error;
-			}
+				),
+			);
+			return result;
 		},
 	});
 
@@ -37,20 +32,28 @@ export const userWalletQueryOptions = ({ token }: { token: string }) =>
 	queryOptions({
 		queryKey: ["userWallet", token],
 		queryFn: async () => {
-			try {
-				const response = await client.api.wallets.$get(
+			console.log(token, "TOKEN");
+			const result = await parseResponse(
+				client.api.wallets.$get(
 					{},
 					{ headers: { Authorization: `Bearer ${token}` } },
-				);
-				if (!response.ok) {
-					throw new Error("Failed to fetch user wallet");
-				}
-				const data = await response.json();
-				return data;
-			} catch (error) {
-				console.error(error);
-				throw error;
-			}
+				),
+			);
+			return result;
+		},
+	});
+
+export const getUserPlanWithTQueryOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["user__plan", token],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.plans.special.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
 		},
 	});
 
@@ -58,19 +61,120 @@ export const exchangeQueryOptions = ({ token }: { token: string }) =>
 	queryOptions({
 		queryKey: ["exchange"],
 		queryFn: async () => {
-			try {
-				const response = await client.api.lookups.exchange.$get(
+			const result = await parseResponse(
+				client.api.lookups.exchange.$get(
 					{},
 					{ headers: { Authorization: `Bearer ${token}` } },
-				);
-				if (!response.ok) {
-					throw new Error("Failed to fetch exchange wallet");
-				}
-				const data = await response.json();
-				return data;
-			} catch (error) {
-				console.error(error);
-				throw error;
-			}
+				),
+			);
+			return result;
+		},
+	});
+
+export const planQueryOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["plan"],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.plans.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const planMutationOptions = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["plan"],
+		mutationFn: async (
+			plan: InferRequestType<typeof client.api.plans.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.plans.$post(
+					{
+						json: plan,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const transactionMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["transaction"],
+		mutationFn: async (
+			transaction: InferRequestType<
+				typeof client.api.transactions.$post
+			>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.transactions.$post(
+					{
+						json: transaction,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const tokenTransferMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["transaction", "token"],
+		mutationFn: async (
+			tokens: InferRequestType<typeof client.api.tokens.transfer.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.tokens.transfer.$post(
+					{
+						json: tokens,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const nftTransferMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["transaction", "nft"],
+		mutationFn: async (
+			nft: InferRequestType<
+				typeof client.api.tokens.nft.transfer.$post
+			>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.tokens.nft.transfer.$post(
+					{
+						json: nft,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const mintTransferMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["transaction", "nft", "mint"],
+		mutationFn: async (
+			mint: InferRequestType<typeof client.api.tokens.nft.mint.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.tokens.nft.mint.$post(
+					{
+						json: mint,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
 		},
 	});
