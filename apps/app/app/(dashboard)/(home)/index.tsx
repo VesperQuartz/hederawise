@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { convertCurrency } from "@hederawise/shared/src/utils";
 import { useQuery } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
-import { useRouter } from "expo-router";
 import { ToastAndroid, View } from "react-native";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import PagerView from "react-native-pager-view";

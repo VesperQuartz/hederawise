@@ -11,7 +11,7 @@ export type CustomSheetProps = {
 	sheetRef: React.RefObject<BottomSheetModal | null>;
 };
 export const CustomSheet = ({ sheetRef, children }: CustomSheetProps) => {
-	const snapPoints = React.useMemo(() => ["25%", "30", "50%", "90%"], []);
+	const snapPoints = React.useMemo(() => ["25%", "30", "40%", "60%"], []);
 	const renderBackdrop = React.useCallback(
 		(props: BottomSheetDefaultBackdropProps) => (
 			<BottomSheetBackdrop

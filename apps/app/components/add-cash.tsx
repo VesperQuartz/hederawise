@@ -1,6 +1,6 @@
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { planQueryOptions } from "~/hooks/api";
@@ -17,12 +17,15 @@ export const AddCash = () => {
 	const router = useRouter();
 	const amount = useAmountStore();
 	const planStore = usePlanStore();
-	const sheetRef = React.useRef<BottomSheetModal>(null);
+	const choosePlanSheetRef = React.useRef<BottomSheetModal>(null);
 	const savingsPlan = useQuery(
 		planQueryOptions({
 			token: sessions.data?.session.token!,
 		}),
 	);
+	const path = usePathname();
+
+	console.log(path);
 
 	if (savingsPlan.isPending) {
 	}
@@ -40,13 +43,18 @@ export const AddCash = () => {
 				{options.map((option) => (
 					<Button
 						onPress={() => {
+							if (path === "/") {
+								router.push(`/?isCustom=${false}`);
+							} else {
+								router.push(`/save?isCustom=${false}`);
+							}
 							amount.setAmount(option);
 							if (!savingsPlan.data) {
 								planStore.updatePlan({ ...planStore.data, amount: option });
 								router.push("/choose-plan");
 							} else {
 								planStore.updatePlan({ ...planStore.data, amount: option });
-								sheetRef.current?.present();
+								choosePlanSheetRef.current?.present();
 							}
 						}}
 						variant={"outline"}
@@ -58,6 +66,18 @@ export const AddCash = () => {
 					</Button>
 				))}
 				<Button
+					onPress={() => {
+						if (path === "/") {
+							router.push(`/?isCustom=${true}`);
+						} else {
+							router.push(`/save?isCustom=${true}`);
+						}
+						if (!savingsPlan.data) {
+							router.push("/choose-plan");
+							return;
+						}
+						choosePlanSheetRef.current?.present();
+					}}
 					size={"lg"}
 					variant={"outline"}
 					className="bg-gray-50 flex flex-col rounded-xl items-center justify-center shadow-none"
@@ -65,7 +85,7 @@ export const AddCash = () => {
 					<Text className="text-4xl text-blue-500">+</Text>
 				</Button>
 			</View>
-			{savingsPlan.data ? <ChoosePlan sheetRef={sheetRef} /> : null}
+			{savingsPlan.data ? <ChoosePlan sheetRef={choosePlanSheetRef} /> : null}
 		</View>
 	);
 };

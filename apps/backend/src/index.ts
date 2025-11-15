@@ -1,4 +1,4 @@
-import { env } from "@hederawise/shared/src/env";
+import { TokenNftInfoQuery } from "@hashgraph/sdk";
 import { Scalar } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 import { upgradeWebSocket, websocket } from "hono/bun";
@@ -10,6 +10,7 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { openAPIRouteHandler } from "hono-openapi";
 import { type AuthEnv, auth } from "./lib/auth";
+import { client } from "./lib/hedera";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
 import { plans } from "./routes/plans";
@@ -76,8 +77,12 @@ export const routes = app
 			message: "Works fine",
 		});
 	})
-	.get("/hello", (c) => {
-		return c.text("Hello Hono!!!");
+	.get("/hello", async (c) => {
+		const nftInfos = await new TokenNftInfoQuery()
+			.setNftId("0.0.7248055/5")
+			.execute(client);
+		console.log(new TextDecoder().decode(nftInfos[0]?.metadata));
+		return c.json(nftInfos[0]?.metadata);
 	});
 
 routes.get(
