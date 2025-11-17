@@ -8,13 +8,15 @@
 	"compilerOptions": {
 		"incremental": true,
     "skipLibCheck": true,
+		"composite": true,
 		"strict": true,
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
 			"~/*": [
-				"*"
-			]
+				"./*"
+			],
+			"@hederawise/shared/src/*": ["../../packages/shared/src/*"]
 		}
 	},
 	"include": [

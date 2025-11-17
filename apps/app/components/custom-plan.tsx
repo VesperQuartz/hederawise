@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
@@ -13,7 +14,7 @@ export const CustomPlan = ({
 	const router = useRouter();
 	return (
 		<CustomSheet sheetRef={sheetRef}>
-			<View className="flex flex-1 justify-between flex-col gap-4">
+			<BottomSheetView className="" style={{ padding: 24 }}>
 				<View className="flex flex-col justify-center items-center gap-4">
 					<Image
 						source={require("../assets/mine.png")}
@@ -46,7 +47,7 @@ export const CustomPlan = ({
 				>
 					<Text className="text-md">CONTINUE</Text>
 				</Button>
-			</View>
+			</BottomSheetView>
 		</CustomSheet>
 	);
 };

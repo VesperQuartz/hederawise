@@ -46,8 +46,8 @@ export const StashAccount = ({
 			token: session.data?.session.token!,
 		}),
 	);
-	console.log("Wallet", wallet);
-	console.log("userStash", userStash?.data);
+
+	console.log(userStash.data?.amount!, "AMA");
 	const form = useForm({
 		defaultValues: {
 			amount: "",
@@ -59,9 +59,13 @@ export const StashAccount = ({
 				walletAddress: z.string().min(1, "Wallet address is required"),
 			}),
 		},
+
 		onSubmit: async (values) => {
 			console.log("Values", values.value);
-			if (Number(values.value.amount) >= userStash.data?.amount!) {
+			if (
+				!userStash.data?.amount ||
+				Number(values.value.amount) >= userStash.data?.amount!
+			) {
 				ToastAndroid.showWithGravity(
 					"Not enough funds",
 					ToastAndroid.TOP,

@@ -20,7 +20,6 @@ const colors = [
 ];
 
 export const SaveByMyself = () => {
-	const router = useRouter();
 	const sheetRef = React.useRef<BottomSheetModal>(null);
 	const session = authClient.useSession();
 	const plans = useQuery(
