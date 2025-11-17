@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "expo-router";
 import React from "react";
 import { View } from "react-native";
@@ -11,11 +12,18 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Text } from "~/components/ui/text";
+import { userStashQueryOptions } from "~/hooks/api";
+import { authClient } from "~/lib/auth-client";
 
 const Stash = () => {
 	const [show, setShow] = React.useState(true);
+	const session = authClient.useSession();
 	const navigation = useNavigation();
 	const chooseAccountSheet = React.useRef<BottomSheetModal>(null);
+
+	const userStash = useQuery(
+		userStashQueryOptions({ token: session.data?.session.token! }),
+	);
 
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
@@ -77,7 +85,9 @@ const Stash = () => {
 							))}
 						</View>
 					) : (
-						<Text className="font-black text-4xl text-[#0a2e65]">{0} ℏ</Text>
+						<Text className="font-black text-4xl text-[#0a2e65]">
+							{userStash.data?.amount ?? 0} ℏ
+						</Text>
 					)}
 				</View>
 			</View>

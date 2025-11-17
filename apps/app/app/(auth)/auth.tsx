@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/button";
 
 const Auth = () => {
 	const router = useRouter();
-
 	return (
 		<View className="flex bg-blue-500 flex-1 p-4">
 			<View className="flex flex-1 items-center justify-between flex-col">

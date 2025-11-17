@@ -1,5 +1,10 @@
 import { client } from "@hederawise/shared/src/client";
-import { mutationOptions, queryOptions, useQuery } from "@tanstack/react-query";
+import {
+	mutationOptions,
+	queryOptions,
+	useMutation,
+	useQuery,
+} from "@tanstack/react-query";
 import type { InferRequestType } from "hono/client";
 import { parseResponse } from "hono/client";
 import { authClient } from "~/lib/auth-client";
@@ -211,3 +216,77 @@ export const useGetBalance = () => {
 		hwise: Number(balance.data?.tokens[0].balance ?? 0),
 	};
 };
+
+export const userStashQueryOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["stash"],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.stash.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const createStashMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["stash"],
+		mutationFn: async (
+			stash: InferRequestType<typeof client.api.stash.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.stash.$post(
+					{
+						json: stash,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const withdrawStashMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["stash", "withdraw"],
+		mutationFn: async (
+			stash: InferRequestType<typeof client.api.stash.withdraw.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.stash.withdraw.$post(
+					{
+						json: stash,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const withdrawStashTokenMutationOption = ({
+	token,
+}: {
+	token: string;
+}) =>
+	mutationOptions({
+		mutationKey: ["stash", "withdraw", "token"],
+		mutationFn: async (
+			stash: InferRequestType<
+				typeof client.api.tokens.withdraw.stash.$post
+			>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.tokens.withdraw.stash.$post(
+					{
+						json: stash,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});

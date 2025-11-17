@@ -66,6 +66,19 @@ const Signup = () => {
 							},
 						},
 					);
+					await client.api.stash.$post(
+						{
+							json: {
+								userId: session.data?.user.id!,
+								amount: 0,
+							},
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${session.data?.session.token}`,
+							},
+						},
+					);
 					await client.api.wallets.$post(
 						{
 							json: {

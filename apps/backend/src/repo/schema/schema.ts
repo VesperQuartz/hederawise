@@ -187,3 +187,10 @@ export const TransactionSchema = createInsertSchema(transactions, {
 	status: z.enum(["pending", "completed", "cancelled"]),
 });
 export const TransactionSelectSchema = createSelectSchema(transactions);
+
+export type Stash = typeof stash.$inferInsert;
+export type StashSelect = typeof stash.$inferSelect;
+export const StashSchema = createInsertSchema(stash, {
+	amount: z.coerce.number<number>(),
+});
+export const StashSelectSchema = createSelectSchema(stash);

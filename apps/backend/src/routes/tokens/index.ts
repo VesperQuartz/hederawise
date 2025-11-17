@@ -175,7 +175,6 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			}
 		},
 	)
-
 	.post(
 		"/link",
 		validator(
@@ -310,6 +309,49 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 					return ctx.json({ message: error.message }, 500);
 				} else {
 					return ctx.json({ message: "Something went wrong" }, 500);
+				}
+			}
+		},
+	)
+	.post(
+		"/withdraw/stash",
+		validator(
+			"json",
+			z.object({
+				amount: z.coerce.number(),
+				accoundId: z.string(),
+			}),
+		),
+		describeRoute({
+			description: "Withdraw from stash",
+			responses: {
+				200: {
+					description: "Withdraw from",
+					content: {
+						"application/json": {
+							schema: resolver(
+								z.object({
+									message: z.string(),
+								}),
+							),
+						},
+					},
+				},
+			},
+		}),
+		async (ctx) => {
+			try {
+				const { amount, accoundId } = ctx.req.valid("json");
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.tokenTransferFromStash({
+					amount,
+					accountId: accoundId,
+				});
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
 				}
 			}
 		},

@@ -14,6 +14,7 @@ import { client } from "./lib/hedera";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
 import { plans } from "./routes/plans";
+import { stash } from "./routes/stash";
 import { tokens } from "./routes/tokens";
 import { transactions } from "./routes/transactions";
 import { wallet } from "./routes/wallet";
@@ -70,6 +71,7 @@ export const routes = app
 	.route("/", wallet)
 	.route("/", lookups)
 	.route("/", plans)
+	.route("/", stash)
 	.route("/", transactions)
 	.get("/healthcheck", (c) => {
 		return c.json({

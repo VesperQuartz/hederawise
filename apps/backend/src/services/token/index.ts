@@ -179,6 +179,36 @@ export class TokenService {
 		}
 	}
 
+	async tokenTransferFromStash({
+		accountId,
+		amount,
+	}: {
+		accountId: string;
+		amount: number;
+	}) {
+		try {
+			const data = await new TransferTransaction()
+				.addHbarTransfer(env.OPERATOR_ID!, -amount)
+				.addHbarTransfer(accountId, +amount)
+				.freezeWith(client)
+				.sign(PrivateKey.fromBytesECDSA(Uint8Array.from(env.OPERATOR_KEY!)));
+
+			const recipt = (
+				await (await data.execute(client)).getReceipt(client)
+			).toJSON();
+			return {
+				status: recipt.status,
+				serials: Number(recipt.serials[0]),
+				accountId: recipt.accountId,
+				tokenId: recipt.tokenId,
+				topicId: recipt.topicId,
+				message: `Successfully transfer ${recipt.status}`,
+			};
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	async createNFT() {
 		try {
 			const privateKey = PrivateKey.fromStringECDSA(env.OPERATOR_KEY!);
