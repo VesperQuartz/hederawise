@@ -43,7 +43,7 @@ export class PlansService {
 			return plan?.map((items) => ({
 				...items,
 				transactions: items.transactions?.reduce(
-					(acc, curr) => acc + curr.amount,
+					(acc, curr) => acc + Number(curr.amount),
 					0,
 				),
 			}));

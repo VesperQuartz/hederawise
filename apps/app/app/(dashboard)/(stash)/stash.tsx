@@ -147,6 +147,7 @@ const Stash = () => {
 										</View>
 										<View>
 											<Text className="text-xl font-bold text-[#0a2e65]">
+												{item.status === "in" ? "+" : "-"}
 												{item.amount} ℏ
 											</Text>
 											<Text className="text-xs opacity-60">

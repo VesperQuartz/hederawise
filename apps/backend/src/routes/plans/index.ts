@@ -3,7 +3,7 @@ import { describeRoute, resolver, validator } from "hono-openapi";
 import z from "zod";
 import type { AuthEnv } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { PlanRepo } from "@/repo/plans";
+import { PlanStorage } from "@/repo/plans";
 import { PlanSchema, PlanSelectSchema } from "@/repo/schema/schema";
 import { PlansService } from "@/services/plans";
 
@@ -28,7 +28,7 @@ export const plans = new Hono<{ Variables: AuthEnv }>()
 		async (c) => {
 			const user = c.get("user");
 			const plan = c.req.valid("json");
-			const planService = new PlansService(new PlanRepo(db));
+			const planService = new PlansService(new PlanStorage(db));
 			try {
 				const data = await planService.createUserPlan({
 					...plan,
@@ -68,7 +68,7 @@ export const plans = new Hono<{ Variables: AuthEnv }>()
 		}),
 		async (c) => {
 			const user = c.get("user");
-			const planService = new PlansService(new PlanRepo(db));
+			const planService = new PlansService(new PlanStorage(db));
 			try {
 				const response = await planService.getUserPlan(user?.id!);
 				return c.json(response);
@@ -98,7 +98,7 @@ export const plans = new Hono<{ Variables: AuthEnv }>()
 		}),
 		async (c) => {
 			const user = c.get("user");
-			const planService = new PlansService(new PlanRepo(db));
+			const planService = new PlansService(new PlanStorage(db));
 			try {
 				const response = await planService.getUserPlanWithT(user?.id!);
 				return c.json(response);

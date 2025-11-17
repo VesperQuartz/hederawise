@@ -1,5 +1,6 @@
 import { TokenNftInfoQuery } from "@hashgraph/sdk";
 import { Scalar } from "@scalar/hono-api-reference";
+import * as cron from "croner";
 import { Hono } from "hono";
 import { upgradeWebSocket, websocket } from "hono/bun";
 import { cors } from "hono/cors";
@@ -10,7 +11,11 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { openAPIRouteHandler } from "hono-openapi";
 import { type AuthEnv, auth } from "./lib/auth";
+import { db } from "./lib/db";
 import { client } from "./lib/hedera";
+import { PlanStorage } from "./repo/plans";
+import { TokenStorage } from "./repo/token";
+import { WalletStorage } from "./repo/wallet";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
 import { plans } from "./routes/plans";
@@ -18,6 +23,9 @@ import { stash } from "./routes/stash";
 import { tokens } from "./routes/tokens";
 import { transactions } from "./routes/transactions";
 import { wallet } from "./routes/wallet";
+import { PlansService } from "./services/plans";
+import { TokenService } from "./services/token";
+import { WalletService } from "./services/wallet";
 
 const app = new Hono<{
 	Variables: AuthEnv;
@@ -138,6 +146,26 @@ app.get(
 		};
 	}),
 );
+
+new cron.Cron("0 12 * * *", async () => {
+	const plan = new PlansService(new PlanStorage(db));
+	const token = new TokenService(
+		new TokenStorage(db),
+		new WalletService(new WalletStorage(db)),
+	);
+	const plans = await plan.getScheduledPlansToRun();
+	await Promise.all(
+		plans.map(
+			async (plan) =>
+				await token.tokenTransferCron({
+					userId: plan.userId!,
+					amount: plan.amount,
+				}),
+		),
+	);
+	await plan.updateNextDueDate();
+	console.log("Cron job running", plans, new Date());
+});
 
 export default {
 	fetch: routes.fetch,

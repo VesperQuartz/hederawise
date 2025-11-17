@@ -13,9 +13,14 @@ import {
 import { env } from "@hederawise/shared/src/env";
 import { client } from "@/lib/hedera";
 import type { TokenImpl } from "@/repo/token";
+import type { WalletImpl } from "@/repo/wallet";
+import type { WalletService } from "../wallet";
 
 export class TokenService {
-	constructor(private readonly tokenStore: TokenImpl) {}
+	constructor(
+		private readonly tokenStore: TokenImpl,
+		private readonly walletStore?: WalletService,
+	) {}
 
 	async createToken() {
 		try {
@@ -136,7 +141,46 @@ export class TokenService {
 			throw error;
 		}
 	}
+	async tokenTransferCron({
+		userId,
+		amount,
+	}: {
+		userId: string;
+		amount: number;
+	}) {
+		try {
+			const wallet = await this.walletStore?.getUserWallet({ userId });
+			const balance = await this.getUserTokenBalance({
+				userAccountId: wallet?.accountId!,
+			});
 
+			if (Number(balance.hbars.split(" ")[0]) < amount) {
+				throw new Error("Not enough funds");
+			}
+
+			const data = await new TransferTransaction()
+				.addHbarTransfer(wallet?.accountId!, -amount)
+				.addHbarTransfer(env.OPERATOR_ID!, amount)
+				.addTokenTransfer(env.TOKEN_ID!, env.OPERATOR_ID!, -amount)
+				.addTokenTransfer(env.TOKEN_ID!, wallet?.accountId!, amount)
+				.freezeWith(client)
+				.sign(PrivateKey.fromBytesECDSA(Uint8Array.from(wallet?.privateKey!)));
+
+			const recipt = (
+				await (await data.execute(client)).getReceipt(client)
+			).toJSON();
+			return {
+				status: recipt.status,
+				serials: Number(recipt.serials[0]),
+				accountId: recipt.accountId,
+				tokenId: recipt.tokenId,
+				topicId: recipt.topicId,
+				message: `Successfully transfer ${recipt.status}`,
+			};
+		} catch (error) {
+			throw error;
+		}
+	}
 	async tokenTransfer({
 		userAccountId,
 		userPrivateKey,

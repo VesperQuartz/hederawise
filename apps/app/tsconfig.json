@@ -8,7 +8,6 @@
 	"compilerOptions": {
 		"incremental": true,
     "skipLibCheck": true,
-		"composite": true,
 		"strict": true,
 		"jsx": "react-jsx",
 		"baseUrl": ".",

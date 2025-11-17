@@ -16,7 +16,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"packageManager": "pnpm@10.20.0",
+	"packageManager": "pnpm@10.22.0",
 	"devDependencies": {
 		"turbo": "^2.6.0"
 	},

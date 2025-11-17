@@ -21,7 +21,7 @@ export interface PlanImpl {
 	updateNextDueDate: () => Promise<PlanSelect[] | undefined>;
 }
 
-export class PlanRepo implements PlanImpl {
+export class PlanStorage implements PlanImpl {
 	constructor(private readonly planStore: Db) {}
 
 	private isTuple<T>(array: T[]): array is [T, ...T[]] {
