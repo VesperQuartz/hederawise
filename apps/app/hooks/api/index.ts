@@ -290,3 +290,45 @@ export const withdrawStashTokenMutationOption = ({
 			return result;
 		},
 	});
+
+export const userStashTransactionsQueryOptions = ({
+	token,
+}: {
+	token: string;
+}) =>
+	queryOptions({
+		queryKey: ["stash", "transactions"],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.stash.transactions.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const createStashTransactionMutationOption = ({
+	token,
+}: {
+	token: string;
+}) =>
+	mutationOptions({
+		mutationKey: ["stash", "transactions"],
+		mutationFn: async (
+			stash: InferRequestType<
+				typeof client.api.stash.transactions.$post
+			>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.stash.transactions.$post(
+					{
+						json: stash,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});

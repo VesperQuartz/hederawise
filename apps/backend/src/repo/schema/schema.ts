@@ -1,4 +1,5 @@
 import { env } from "@hederawise/shared/src/env";
+import to from "await-to-ts";
 import CryptoJs from "crypto-js";
 import { relations } from "drizzle-orm";
 import {
@@ -133,6 +134,20 @@ export const transactions = pgTable(
 	(table) => [index("index_on_userid#2").on(table.userId)],
 );
 
+export const stashTransactions = pgTable(
+	"stash_transactions",
+	{
+		id: serial("id").primaryKey(),
+		amount: decimal("amount", { mode: "number" }).notNull().default(0),
+		to: text("to").notNull(),
+		userId: text("user_id").references(() => user.id),
+		status: text("status").$type<"in" | "out">(),
+		createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
+		updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
+	},
+	(table) => [index("index_on_userid#4").on(table.userId)],
+);
+
 export const userRelation = relations(user, ({ one }) => ({
 	wallet: one(wallet),
 }));
@@ -187,6 +202,14 @@ export const TransactionSchema = createInsertSchema(transactions, {
 	status: z.enum(["pending", "completed", "cancelled"]),
 });
 export const TransactionSelectSchema = createSelectSchema(transactions);
+
+export type StashTransaction = typeof stashTransactions.$inferInsert;
+export type StashTransactionSelect = typeof stashTransactions.$inferSelect;
+export const StashTransactionSchema = createInsertSchema(stashTransactions, {
+	status: z.enum(["in", "out"]),
+});
+export const StashTransactionSelectSchema =
+	createSelectSchema(stashTransactions);
 
 export type Stash = typeof stash.$inferInsert;
 export type StashSelect = typeof stash.$inferSelect;

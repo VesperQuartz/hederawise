@@ -10,8 +10,10 @@ import {
 } from "react-native";
 import { z } from "zod";
 import {
+	createStashTransactionMutationOption,
 	useGetBalance,
 	userStashQueryOptions,
+	userStashTransactionsQueryOptions,
 	withdrawStashMutationOption,
 	withdrawStashTokenMutationOption,
 } from "~/hooks/api";
@@ -20,12 +22,17 @@ import { CustomSheet, CustomSheetProps } from "./custom-sheet";
 import { Button } from "./ui/button";
 import { Text } from "./ui/text";
 
-export const ChooseAccount = ({
+export const StashAccount = ({
 	sheetRef,
 }: Pick<CustomSheetProps, "sheetRef">) => {
 	const session = authClient.useSession();
 	const userStash = useQuery(
 		userStashQueryOptions({ token: session.data?.session.token! }),
+	);
+	const transaction = useMutation(
+		createStashTransactionMutationOption({
+			token: session.data?.session.token!,
+		}),
 	);
 	const queryClient = useQueryClient();
 	const wallet = useGetBalance();
@@ -75,14 +82,24 @@ export const ChooseAccount = ({
 								amount: Number(values.value.amount),
 							},
 							{
-								onSuccess: () => {
+								onSuccess: async () => {
 									ToastAndroid.showWithGravity(
 										"Successfully withdrawn",
 										ToastAndroid.TOP,
 										ToastAndroid.SHORT,
 									);
+									transaction.mutateAsync({
+										amount: Number(values.value.amount),
+										status: "out",
+										to: values.value.walletAddress,
+									});
 									queryClient.invalidateQueries({
 										queryKey: userStashQueryOptions({
+											token: session.data?.session.token!,
+										}).queryKey,
+									});
+									queryClient.invalidateQueries({
+										queryKey: userStashTransactionsQueryOptions({
 											token: session.data?.session.token!,
 										}).queryKey,
 									});

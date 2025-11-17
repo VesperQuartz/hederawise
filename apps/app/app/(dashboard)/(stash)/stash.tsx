@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { useNavigation } from "expo-router";
 import React from "react";
 import { View } from "react-native";
-import { ChooseAccount } from "~/components/choose-account";
+import { FlatList, RefreshControl } from "react-native-gesture-handler";
+import { StashAccount } from "~/components/choose-account";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -12,7 +14,10 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Text } from "~/components/ui/text";
-import { userStashQueryOptions } from "~/hooks/api";
+import {
+	userStashQueryOptions,
+	userStashTransactionsQueryOptions,
+} from "~/hooks/api";
 import { authClient } from "~/lib/auth-client";
 
 const Stash = () => {
@@ -20,6 +25,12 @@ const Stash = () => {
 	const session = authClient.useSession();
 	const navigation = useNavigation();
 	const chooseAccountSheet = React.useRef<BottomSheetModal>(null);
+	const transactions = useQuery(
+		userStashTransactionsQueryOptions({
+			token: session.data?.session.token!,
+		}),
+	);
+	console.log("Transactions", transactions?.data);
 
 	const userStash = useQuery(
 		userStashQueryOptions({ token: session.data?.session.token! }),
@@ -91,13 +102,67 @@ const Stash = () => {
 					)}
 				</View>
 			</View>
-			<View>
+			<View className="flex flex-col gap-3">
 				<View className="flex flex-row items-center justify-between">
 					<Text className="text-gray-50>text-xl">Transactions</Text>
 					<Ionicons name="chevron-forward" size={20} color={"#2b7fff"} />
 				</View>
+				<View>
+					<FlatList
+						data={transactions?.data ?? []}
+						refreshControl={
+							<RefreshControl
+								refreshing={transactions.isFetching}
+								onRefresh={() => {
+									transactions.refetch();
+									userStash.refetch();
+								}}
+							/>
+						}
+						renderItem={({ item }) => {
+							return (
+								<View>
+									<View className="flex flex-row justify-around gap-2">
+										<View>
+											{item.to === "in" ? (
+												<View className="flex items-center justify-center size-12 bg-blue-300/40 rounded-full">
+													<Ionicons
+														name="arrow-down"
+														color={"purple"}
+														size={24}
+													/>
+												</View>
+											) : (
+												<View className="flex items-center justify-center size-12 bg-blue-300/60 rounded-full">
+													<Ionicons name="arrow-up" color={"blue"} size={24} />
+												</View>
+											)}
+										</View>
+										<View>
+											<Text className="text-xl font-bold text-[#0a2e65]">
+												Transfer {item.status === "out" ? "to" : "from"} $
+												{item.to}
+											</Text>
+											<Text className="text-xs opacity-60">Processed</Text>
+										</View>
+										<View>
+											<Text className="text-xl font-bold text-[#0a2e65]">
+												{item.amount} ℏ
+											</Text>
+											<Text className="text-xs opacity-60">
+												{format(item.createdAt!, "PP")}
+											</Text>
+										</View>
+									</View>
+									<View className="border border-b border-gray-200 my-2 flex-1 opacity-30"></View>
+								</View>
+							);
+						}}
+						keyExtractor={(item) => item.id.toString()}
+					/>
+				</View>
 			</View>
-			<ChooseAccount sheetRef={chooseAccountSheet} />
+			<StashAccount sheetRef={chooseAccountSheet} />
 		</View>
 	);
 };

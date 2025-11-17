@@ -1,4 +1,4 @@
-import type { Stash } from "@/repo/schema/schema";
+import type { Stash, StashTransaction } from "@/repo/schema/schema";
 import type { StashImpl } from "@/repo/stash";
 
 export class StashService {
@@ -21,5 +21,14 @@ export class StashService {
 	async withdrawToStash(amount: number, userId: string) {
 		const stash = await this.stashStore.getUserStash(userId);
 		await this.stashStore.updateStashAmount(stash.id, stash.amount + amount);
+	}
+
+	async getUserStashTransactions(userId: string) {
+		const stash = await this.stashStore.getUserStash(userId);
+		return this.stashStore.getUserStashTransactions(userId);
+	}
+
+	async createStashTransaction(stashTransaction: StashTransaction) {
+		return this.stashStore.createStashTransaction(stashTransaction);
 	}
 }
