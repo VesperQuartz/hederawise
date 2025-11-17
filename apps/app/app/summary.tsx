@@ -33,6 +33,7 @@ const Summary = () => {
 	const mint = useMutation(
 		mintTransferMutationOption({ token: data?.session.token! }),
 	);
+	console.log("SAW", planStore.data);
 	const handleTransaction = async () => {
 		await token.mutateAsync(
 			{
@@ -84,8 +85,8 @@ const Summary = () => {
 															ToastAndroid.SHORT,
 															ToastAndroid.CENTER,
 														);
-														planStore.clearPlan();
 														router.replace("/");
+														// planStore.clearPlan();
 													},
 													onError: (error) => {
 														if (error instanceof Error) {

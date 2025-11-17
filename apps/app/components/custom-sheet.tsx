@@ -1,8 +1,4 @@
-import {
-	BottomSheetBackdrop,
-	BottomSheetModal,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { BottomSheetDefaultBackdropProps } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetBackdrop/types";
 import React from "react";
 
@@ -11,14 +7,13 @@ export type CustomSheetProps = {
 	sheetRef: React.RefObject<BottomSheetModal | null>;
 };
 export const CustomSheet = ({ sheetRef, children }: CustomSheetProps) => {
-	const snapPoints = React.useMemo(() => ["25%", "30", "40%", "60%"], []);
+	const snapPoints = React.useMemo(
+		() => ["25%", "30", "35%", "40%", "45%", "50%"],
+		[],
+	);
 	const renderBackdrop = React.useCallback(
 		(props: BottomSheetDefaultBackdropProps) => (
-			<BottomSheetBackdrop
-				{...props}
-				disappearsOnIndex={-1}
-				appearsOnIndex={2}
-			/>
+			<BottomSheetBackdrop {...props} disappearsOnIndex={-1} />
 		),
 		[],
 	);
@@ -26,21 +21,13 @@ export const CustomSheet = ({ sheetRef, children }: CustomSheetProps) => {
 		<BottomSheetModal
 			backdropComponent={renderBackdrop}
 			enableContentPanningGesture
-			index={1}
-			enableDynamicSizing={false}
+			enableDynamicSizing={true}
+			index={2}
 			enablePanDownToClose
 			snapPoints={snapPoints}
 			ref={sheetRef}
 		>
-			<BottomSheetView
-				style={{
-					flex: 1,
-					padding: 24,
-					justifyContent: "center",
-				}}
-			>
-				{children}
-			</BottomSheetView>
+			{children}
 		</BottomSheetModal>
 	);
 };

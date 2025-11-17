@@ -1,4 +1,3 @@
-import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver } from "hono-openapi";
 import { z } from "zod";

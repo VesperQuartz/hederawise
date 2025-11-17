@@ -6,7 +6,7 @@ import { Text } from "~/components/ui/text";
 import { authClient } from "~/lib/auth-client";
 
 export const unstable_settings = {
-	initialRouteName: "index",
+	initialRouteName: "(home)",
 };
 
 const DashboardLayout = () => {
@@ -16,8 +16,12 @@ const DashboardLayout = () => {
 			<Tabs.Screen
 				name="(home)"
 				options={{
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons size={size} color={"#2b7fff"} name="home" />
+					tabBarIcon: ({ size, focused }) => (
+						<Ionicons
+							size={size}
+							color={"#2b7fff"}
+							name={focused ? "home" : "home-outline"}
+						/>
 					),
 					tabBarLabel: "Home",
 					headerTitle: "",
@@ -46,6 +50,21 @@ const DashboardLayout = () => {
 							</View>
 						);
 					},
+				}}
+			/>
+			<Tabs.Screen
+				name="(stash)"
+				options={{
+					tabBarIcon: ({ color, size, focused }) => (
+						<Ionicons
+							size={size}
+							color={"#2b7fff"}
+							name={focused ? "wallet" : "wallet-outline"}
+						/>
+					),
+					title: "Stash",
+					headerShown: false,
+					headerShadowVisible: false,
 				}}
 			/>
 		</Tabs>

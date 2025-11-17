@@ -10,6 +10,7 @@
 			"ESNext"
 		],
 		"target": "ESNext",
+    "incremental": true,
 		"module": "Preserve",
 		"composite": true,
 		"moduleDetection": "force",
@@ -41,7 +42,7 @@
 		}
 	},
 	"include": [
-		"src"
+		"src/**/*"
 	],
 	"exclude": [
 		"dist",

@@ -1,12 +1,7 @@
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useForm } from "@tanstack/react-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-	ActivityIndicator,
-	KeyboardAvoidingView,
-	KeyboardAvoidingViewBase,
-	View,
-} from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, View } from "react-native";
 import { z } from "zod/v4";
 import { CustomSheet, CustomSheetProps } from "./custom-sheet";
 import { Button } from "./ui/button";
@@ -40,7 +35,7 @@ export const CustomPrice = ({
 	});
 	return (
 		<CustomSheet sheetRef={sheetRef}>
-			<View className="flex flex-1 justify-between flex-col gap-4">
+			<BottomSheetView style={{ padding: 24, flex: 1, minHeight: "100%" }}>
 				<View>
 					<Text className="text-[#0a2e65] text-xl font-bold">How much?</Text>
 				</View>
@@ -86,7 +81,7 @@ export const CustomPrice = ({
 						)}
 					</form.Subscribe>
 				</View>
-			</View>
+			</BottomSheetView>
 		</CustomSheet>
 	);
 };

@@ -1,4 +1,3 @@
-import to from "await-to-ts";
 import { eq } from "drizzle-orm";
 import type { Db } from "@/lib/db";
 import {
@@ -32,24 +31,22 @@ export class TransactionRepo implements TransactionImpl {
 	}
 
 	async getTransactions() {
-		const [error, data] = await to(
-			this.transactionStore.query.transactions.findMany(),
-		);
-		if (error) {
+		try {
+			const data = await this.transactionStore.query.transactions.findMany();
+			return data ?? [];
+		} catch (error) {
 			throw error;
 		}
-		return data ?? [];
 	}
 
 	async getUserTransactions(userId: string) {
-		const [error, data] = await to(
-			this.transactionStore.query.transactions.findMany({
+		try {
+			const data = await this.transactionStore.query.transactions.findMany({
 				where: eq(transactions.userId, userId),
-			}),
-		);
-		if (error) {
+			});
+			return data ?? [];
+		} catch (error) {
 			throw error;
 		}
-		return data ?? [];
 	}
 }

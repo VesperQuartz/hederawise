@@ -1,25 +1,28 @@
 {
-  "extends": "expo/tsconfig.base",
+	"extends": "expo/tsconfig.base",
 	"references": [
 		{
 			"path": "../../packages/shared/tsconfig.json"
 		}
 	],
-  "compilerOptions": {
-    "strict": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "*"
-      ]
-    }
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
-  ]
+	"compilerOptions": {
+		"incremental": true,
+    "skipLibCheck": true,
+		"composite": true,
+		"strict": true,
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"paths": {
+			"~/*": [
+				"*"
+			]
+		}
+	},
+	"include": [
+		"**/*.ts",
+		"**/*.tsx",
+		".expo/types/**/*.ts",
+		"expo-env.d.ts",
+		"nativewind-env.d.ts"
+	]
 }

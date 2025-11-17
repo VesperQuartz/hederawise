@@ -11,12 +11,12 @@ import {
 	TransferTransaction,
 } from "@hashgraph/sdk";
 import { env } from "@hederawise/shared/src/env";
-import to from "await-to-ts";
 import { client } from "@/lib/hedera";
 import type { TokenImpl } from "@/repo/token";
 
 export class TokenService {
 	constructor(private readonly tokenStore: TokenImpl) {}
+
 	async createToken() {
 		try {
 			const privateKey = PrivateKey.fromStringECDSA(env.OPERATOR_KEY!);
@@ -35,18 +35,21 @@ export class TokenService {
 			const receipt = await txResponse.getReceipt(client);
 			const tokenId = receipt.tokenId?.toString();
 			client.close();
-			const [error] = await to(
-				this.tokenStore.createToken({
+
+			try {
+				await this.tokenStore.createToken({
 					tokenId: tokenId as string,
 					tokenName: "$HWISE",
 					tokenSymbol: "HW",
 					privateKey: Array.from(privateKey.toBytes()),
-				}),
-			);
-			if (error) {
-				console.error(error.message);
+				});
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "Cannot create token";
+				console.error(message);
 				throw new Error("Cannot create token");
 			}
+
 			return {
 				tokenId,
 				tokenName: "$HWISE",
@@ -55,8 +58,10 @@ export class TokenService {
 			};
 		} catch (e) {
 			console.log(e);
+			throw e;
 		}
 	}
+
 	async tokenLink({
 		userAccountId,
 		userPrivateKey,
@@ -89,11 +94,7 @@ export class TokenService {
 
 	async getAllToken() {
 		try {
-			const [error, token] = await to(this.tokenStore.getTokens());
-			if (error) {
-				console.error(error);
-				throw error;
-			}
+			const token = await this.tokenStore.getTokens();
 			return token;
 		} catch (error) {
 			console.error(error);
@@ -126,13 +127,9 @@ export class TokenService {
 		userAccountId: string;
 	}): Promise<AccountBalanceJson> {
 		try {
-			const [error, balance] = await to(
-				new AccountBalanceQuery().setAccountId(userAccountId).execute(client),
-			);
-			if (error) {
-				console.error(error);
-				throw error;
-			}
+			const balance = await new AccountBalanceQuery()
+				.setAccountId(userAccountId)
+				.execute(client);
 			return balance.toJSON();
 		} catch (error) {
 			console.log(error);
@@ -158,19 +155,14 @@ export class TokenService {
 				throw new Error("Not enough funds");
 			}
 
-			const [error, data] = await to(
-				new TransferTransaction()
-					.addHbarTransfer(userAccountId, -amount)
-					.addHbarTransfer(env.OPERATOR_ID!, amount)
-					.addTokenTransfer(env.TOKEN_ID!, env.OPERATOR_ID!, -amount)
-					.addTokenTransfer(env.TOKEN_ID!, userAccountId!, amount)
-					.freezeWith(client)
-					.sign(PrivateKey.fromBytesECDSA(Uint8Array.from(userPrivateKey))),
-			);
-			if (error) {
-				console.error(error);
-				throw error;
-			}
+			const data = await new TransferTransaction()
+				.addHbarTransfer(userAccountId, -amount)
+				.addHbarTransfer(env.OPERATOR_ID!, amount)
+				.addTokenTransfer(env.TOKEN_ID!, env.OPERATOR_ID!, -amount)
+				.addTokenTransfer(env.TOKEN_ID!, userAccountId!, amount)
+				.freezeWith(client)
+				.sign(PrivateKey.fromBytesECDSA(Uint8Array.from(userPrivateKey)));
+
 			const recipt = (
 				await (await data.execute(client)).getReceipt(client)
 			).toJSON();
@@ -186,6 +178,7 @@ export class TokenService {
 			throw error;
 		}
 	}
+
 	async createNFT() {
 		try {
 			const privateKey = PrivateKey.fromStringECDSA(env.OPERATOR_KEY!);
@@ -205,19 +198,20 @@ export class TokenService {
 			const receipt = await txResponse.getReceipt(client);
 			const tokenId = receipt.tokenId?.toString();
 
-			const [error] = await to(
-				this.tokenStore.createToken({
+			try {
+				await this.tokenStore.createToken({
 					tokenId: tokenId as string,
 					tokenName: "$HWISENFT",
 					tokenSymbol: "HWNFT",
 					privateKey: Array.from(privateKey.toBytes()),
-				}),
-			);
-
-			if (error) {
-				console.error(error.message);
+				});
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "Cannot create token";
+				console.error(message);
 				throw new Error("Cannot create token");
 			}
+
 			return {
 				tokenId,
 				tokenName: "$HWISENFT",
@@ -226,8 +220,10 @@ export class TokenService {
 			};
 		} catch (e) {
 			console.log(e);
+			throw e;
 		}
 	}
+
 	async mintNFT() {
 		const CID = [
 			Buffer.from(
@@ -262,6 +258,7 @@ export class TokenService {
 			throw error;
 		}
 	}
+
 	async nftTransfer({
 		userAccountId,
 		tokenSerial,

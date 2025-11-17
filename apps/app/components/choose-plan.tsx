@@ -1,4 +1,4 @@
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import React from "react";
@@ -6,6 +6,7 @@ import { Pressable, View } from "react-native";
 import { getUserPlanWithTQueryOptions } from "~/hooks/api";
 import { authClient } from "~/lib/auth-client";
 import { useAmountStore } from "~/store/store";
+import { Container } from "./container";
 import { CustomPrice } from "./custom-price";
 import { CustomSheet, CustomSheetProps } from "./custom-sheet";
 import { Text } from "./ui/text";
@@ -26,9 +27,15 @@ export const ChoosePlan = ({
 	const customPriceSheetRef = React.useRef<BottomSheetModal>(null);
 	console.log("Params", params);
 	return (
-		<>
+		<Container>
 			<CustomSheet sheetRef={sheetRef}>
-				<View className="flex flex-col gap-3">
+				<BottomSheetView
+					style={{
+						flex: 1,
+						minHeight: "100%",
+						padding: 24,
+					}}
+				>
 					<View>
 						<Text className="text-2xl font-black">Choose a savings plan</Text>
 					</View>
@@ -71,9 +78,9 @@ export const ChoosePlan = ({
 							);
 						})}
 					</View>
-				</View>
+				</BottomSheetView>
 			</CustomSheet>
 			<CustomPrice sheetRef={customPriceSheetRef} />
-		</>
+		</Container>
 	);
 };

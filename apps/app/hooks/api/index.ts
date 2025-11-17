@@ -1,7 +1,8 @@
 import { client } from "@hederawise/shared/src/client";
-import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import { mutationOptions, queryOptions, useQuery } from "@tanstack/react-query";
 import type { InferRequestType } from "hono/client";
 import { parseResponse } from "hono/client";
+import { authClient } from "~/lib/auth-client";
 
 export const userBalanceQueryOptions = ({
 	token,
@@ -77,6 +78,20 @@ export const planQueryOptions = ({ token }: { token: string }) =>
 		queryFn: async () => {
 			const result = await parseResponse(
 				client.api.plans.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const planQueryTOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["plan", "special"],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.plans.special.$get(
 					{},
 					{ headers: { Authorization: `Bearer ${token}` } },
 				),
@@ -178,3 +193,21 @@ export const mintTransferMutationOption = ({ token }: { token: string }) =>
 			return result;
 		},
 	});
+
+export const useGetBalance = () => {
+	const session = authClient.useSession();
+	const wallet = useQuery(
+		userWalletQueryOptions({ token: session.data?.session.token! }),
+	);
+	const balance = useQuery(
+		userBalanceQueryOptions({
+			token: session.data?.session.token!,
+			accountId: wallet.data?.accountId ?? "",
+		}),
+	);
+	return {
+		balance: Number(balance.data?.hbars.split(" ")[0] ?? 0),
+		walletAddress: wallet.data?.accountId ?? "",
+		hwise: Number(balance.data?.tokens[0].balance ?? 0),
+	};
+};

@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import { z } from "zod";
 import type { AuthEnv } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -34,6 +33,7 @@ export const transactions = new Hono<{ Variables: AuthEnv }>()
 				const data = await transaction.getUserTransactions(user?.id!);
 				return c.json(data);
 			} catch (error) {
+				console.error(error);
 				if (error instanceof Error) {
 					return c.json({ message: error.message }, 500);
 				} else {
@@ -69,6 +69,7 @@ export const transactions = new Hono<{ Variables: AuthEnv }>()
 				});
 				return c.json(data);
 			} catch (error) {
+				console.error(error);
 				if (error instanceof Error) {
 					return c.json({ message: error.message }, 500);
 				} else {

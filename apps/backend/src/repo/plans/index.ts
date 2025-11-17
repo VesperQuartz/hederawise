@@ -1,5 +1,4 @@
 import { createNextDueDate } from "@hederawise/shared/src/utils";
-import { to } from "await-to-ts";
 import { and, eq, lte, sum } from "drizzle-orm";
 import type { Db } from "@/lib/db";
 import {
@@ -21,42 +20,47 @@ export interface PlanImpl {
 	updatePlan: (plan: Partial<Plan>) => Promise<PlanSelect>;
 	updateNextDueDate: () => Promise<PlanSelect[] | undefined>;
 }
+
 export class PlanRepo implements PlanImpl {
 	constructor(private readonly planStore: Db) {}
 
 	private isTuple<T>(array: T[]): array is [T, ...T[]] {
 		return array.length > 0;
 	}
+
 	async createPlan(plan: Plan) {
-		const [error, data] = await to(
-			this.planStore.insert(plans).values(plan).returning(),
-		);
-		if (error) {
+		try {
+			const data = await this.planStore.insert(plans).values(plan).returning();
+			return data[0];
+		} catch (error) {
 			throw error;
 		}
-		return data[0];
 	}
+
 	async getPlans() {
-		const [error, data] = await to(this.planStore.query.plans.findMany());
-		if (error) {
+		try {
+			const data = await this.planStore.query.plans.findMany();
+			return data ?? [];
+		} catch (error) {
 			throw error;
 		}
-		return data ?? [];
 	}
+
 	async getPlan(userId: string) {
-		const sumValue = await this.planStore
-			.select({ sum: sum(transactions.amount) })
-			.from(transactions)
-			.where(eq(transactions.userId, userId));
-		const [error, data] = await to(
-			this.planStore.query.plans.findMany({
+		try {
+			const sumValue = await this.planStore
+				.select({ sum: sum(transactions.amount) })
+				.from(transactions)
+				.where(eq(transactions.userId, userId));
+
+			const data = await this.planStore.query.plans.findMany({
 				where: eq(plans.userId, userId),
-			}),
-		);
-		if (error) {
+			});
+
+			return { data, totalAmount: Number(sumValue[0]?.sum) ?? 0 };
+		} catch (error) {
 			throw error;
 		}
-		return { data, totalAmount: Number(sumValue[0]?.sum) ?? 0 };
 	}
 
 	async getUserPlanWithTransactions(userId: string) {
@@ -75,57 +79,56 @@ export class PlanRepo implements PlanImpl {
 	}
 
 	async getScheduledPlans() {
-		const [error, data] = await to(
-			this.planStore.query.plans.findMany({
+		try {
+			const data = await this.planStore.query.plans.findMany({
 				where: and(
 					lte(plans.nextDueDate, new Date().toISOString()),
 					eq(plans.status, "active"),
 				),
-			}),
-		);
-
-		if (error) {
+			});
+			return data ?? [];
+		} catch (error) {
 			throw error;
 		}
-		return data ?? [];
 	}
+
 	async updatePlan(plan: Partial<Plan>) {
-		const [error, data] = await to(
-			this.planStore
+		try {
+			const data = await this.planStore
 				.update(plans)
 				.set(plan)
 				.where(eq(plans.id, plan.id!))
-				.returning(),
-		);
-		if (error) {
+				.returning();
+			return data[0]!;
+		} catch (error) {
 			throw error;
 		}
-		return data[0]!;
 	}
+
 	async updateNextDueDate() {
-		const [error, data] = await to(this.getScheduledPlans());
-		if (error) {
-			throw error;
-		}
-		if (!data) return [];
-		const queries = data.map((plan) =>
-			this.planStore
-				.update(plans)
-				.set({
-					nextDueDate: createNextDueDate(
-						plan.interval,
-						plan.nextDueDate,
-					)?.toISOString(),
-				})
-				.where(eq(plans.id, plan.id!))
-				.returning(),
-		);
-		if (this.isTuple(queries)) {
-			const [batchError, batch] = await to(this.planStore.batch(queries));
-			if (batchError) {
-				throw batchError;
+		try {
+			const data = await this.getScheduledPlans();
+			if (!data) return [];
+
+			const queries = data.map((plan) =>
+				this.planStore
+					.update(plans)
+					.set({
+						nextDueDate: createNextDueDate(
+							plan.interval,
+							plan.nextDueDate,
+						)?.toISOString(),
+					})
+					.where(eq(plans.id, plan.id!))
+					.returning(),
+			);
+
+			if (this.isTuple(queries)) {
+				const batch = await this.planStore.batch(queries);
+				return batch.flat();
 			}
-			return batch.flat();
+		} catch (error) {
+			throw error;
 		}
 	}
 }

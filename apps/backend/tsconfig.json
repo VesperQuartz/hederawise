@@ -1,4 +1,9 @@
 {
+	"references": [
+		{
+			"path": "../../packages/shared/tsconfig.json"
+		}
+	],
 	"compilerOptions": {
 		// Environment setup & latest features
 		"lib": [

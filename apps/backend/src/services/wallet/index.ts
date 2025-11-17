@@ -1,33 +1,26 @@
-import to from "await-to-ts";
 import type { Wallet } from "@/repo/schema/schema";
 import type { WalletImpl } from "@/repo/wallet";
 
 export class WalletService {
 	constructor(private readonly walletStore: WalletImpl) {}
+
 	async createUserWallet(payload: Wallet) {
 		try {
-			const [error, data] = await to(this.walletStore.createWallet(payload));
-			if (error) {
-				console.error(error);
-				throw error;
-			}
+			const data = await this.walletStore.createWallet(payload);
 			return data;
-		} catch (e) {
-			console.error(e);
+		} catch (error) {
+			console.error(error);
+			throw error;
 		}
 	}
+
 	async getUserWallet({ userId }: { userId: string }) {
 		try {
-			const [error, data] = await to(
-				this.walletStore.getUserWallet({ userId }),
-			);
-			if (error) {
-				console.error(error);
-				throw error;
-			}
+			const data = await this.walletStore.getUserWallet({ userId });
 			return data;
-		} catch (e) {
-			console.error(e);
+		} catch (error) {
+			console.error(error);
+			throw error;
 		}
 	}
 }

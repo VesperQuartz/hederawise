@@ -1,4 +1,3 @@
-import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
@@ -32,12 +31,16 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			if (user?.role !== "admin") {
 				return ctx.json({ message: "This action is forbiden!!" }, 403);
 			}
-			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(token.getAllToken());
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+			try {
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.getAllToken();
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 	.post(
@@ -57,12 +60,16 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(token.createToken());
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+			try {
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.createToken();
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 	.post(
@@ -82,12 +89,16 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(token.createNFT());
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+			try {
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.createNFT();
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 	.post(
@@ -107,12 +118,16 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(token.mintNFT());
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+			try {
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.mintNFT();
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 	.post(
@@ -141,21 +156,23 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const user = ctx.get("user");
-			const wallet = new WalletService(new WalletStorage(db));
-			const token = new TokenService(new TokenStorage(db));
-			const { tokenSerial } = ctx.req.valid("json");
-			const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
-			const [error, data] = await to(
-				token.nftTransfer({
+			try {
+				const user = ctx.get("user");
+				const wallet = new WalletService(new WalletStorage(db));
+				const token = new TokenService(new TokenStorage(db));
+				const { tokenSerial } = ctx.req.valid("json");
+				const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
+				const data = await token.nftTransfer({
 					userAccountId: userAccountId?.accountId!,
 					tokenSerial: tokenSerial,
-				}),
-			);
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+				});
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 
@@ -188,14 +205,16 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const { userAccountId, userPrivateKey } = ctx.req.valid("json");
-			const token = new TokenService(new TokenStorage(db));
 			try {
+				const { userAccountId, userPrivateKey } = ctx.req.valid("json");
+				const token = new TokenService(new TokenStorage(db));
 				const data = await token.tokenLink({ userAccountId, userPrivateKey });
 				return ctx.json(data);
 			} catch (error) {
 				console.error(error);
-				return ctx.json({ message: `An error has Occured ${error}` }, 500);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
 		},
 	)
@@ -225,23 +244,27 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (ctx) => {
-			const user = ctx.get("user");
-			const wallet = new WalletService(new WalletStorage(db));
-			const { amount } = ctx.req.valid("json");
-			const token = new TokenService(new TokenStorage(db));
-			const userPrivateKey = await wallet.getUserWallet({ userId: user?.id! });
-			const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
-			const [error, data] = await to(
-				token.tokenTransfer({
+			try {
+				const user = ctx.get("user");
+				const wallet = new WalletService(new WalletStorage(db));
+				const { amount } = ctx.req.valid("json");
+				const token = new TokenService(new TokenStorage(db));
+				const userPrivateKey = await wallet.getUserWallet({
+					userId: user?.id!,
+				});
+				const userAccountId = await wallet.getUserWallet({ userId: user?.id! });
+				const data = await token.tokenTransfer({
 					userAccountId: userAccountId?.accountId!,
 					userPrivateKey: userPrivateKey?.privateKey!,
 					amount,
-				}),
-			);
-			if (error) {
-				ctx.json({ message: error.message }, 500);
+				});
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	)
 	.get(
@@ -253,28 +276,41 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 			}),
 		),
 		describeRoute({
-			description: "Token",
+			description: "Token balance",
 			responses: {
 				200: {
-					description: "Token",
+					description: "Token balance",
 					content: {
 						"application/json": {
-							schema: resolver(z.number()),
+							schema: resolver(
+								z.object({
+									hbars: z.string(),
+									tokens: z.array(
+										z.object({
+											tokenId: z.string(),
+											balance: z.string(),
+										}),
+									),
+								}),
+							),
 						},
 					},
 				},
 			},
 		}),
 		async (ctx) => {
-			const { userAccountId } = ctx.req.valid("param");
-			const token = new TokenService(new TokenStorage(db));
-			const [error, data] = await to(
-				token.getUserTokenBalance({ userAccountId }),
-			);
-			if (error) {
+			try {
+				const { userAccountId } = ctx.req.valid("param");
+				const token = new TokenService(new TokenStorage(db));
+				const data = await token.getUserTokenBalance({ userAccountId });
+				return ctx.json(data);
+			} catch (error) {
 				console.error(error);
-				return ctx.json({ message: error.message }, 500);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				} else {
+					return ctx.json({ message: "Something went wrong" }, 500);
+				}
 			}
-			return ctx.json(data);
 		},
 	);

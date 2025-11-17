@@ -73,7 +73,7 @@ const General = () => {
 			planStore.updatePlan({
 				...planStore.data,
 				amount: Number(values.value.amount),
-				interval: checked ? "once" : interval,
+				interval: checked ? "once" : (planStore.data?.interval! ?? "once"),
 				dueDate: durationToDate(duration),
 			});
 			await plan.mutateAsync(
@@ -98,6 +98,7 @@ const General = () => {
 					},
 					onError: (error) => {
 						if (error instanceof DetailedError) {
+							console.log("EEE");
 							console.error(JSON.stringify(error, null, 2));
 						}
 						ToastAndroid.showWithGravity(

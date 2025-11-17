@@ -1,4 +1,3 @@
-import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
@@ -33,12 +32,13 @@ export const accounts = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (c) => {
-			const account = new AccountService(new ApiService());
-			const [error, data] = await to(account.createAccount());
-			if (error) {
+			try {
+				const account = new AccountService(new ApiService());
+				const data = await account.createAccount();
+				return c.json(data, 201);
+			} catch (error) {
 				console.log(error);
 				return c.json({ message: error }, 500);
 			}
-			return c.json(data, 201);
 		},
 	);

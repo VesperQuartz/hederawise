@@ -63,6 +63,7 @@ export const plans = pgTable(
 	{
 		id: serial("id").primaryKey(),
 		name: text("name").notNull(),
+		image: text("image").default("https://images.lectuslab.online/mine.png"),
 		amount: decimal("amount", { mode: "number" }).notNull(),
 		interval: text("interval")
 			.$type<"day" | "week" | "month" | "once">()
@@ -76,7 +77,6 @@ export const plans = pgTable(
 			withTimezone: true,
 		}).notNull(),
 		userId: text("user_id").references(() => user.id),
-		saved: decimal("saved", { mode: "number" }).default(0),
 		status: text("status")
 			.$type<"active" | "paused" | "completed" | "cancelled">()
 			.default("active"),
@@ -96,11 +96,31 @@ export const plans = pgTable(
 	],
 );
 
+export const stash = pgTable(
+	"stash",
+	{
+		id: serial("id").primaryKey(),
+		amount: decimal("amount", { mode: "number" }).notNull(),
+		userId: text("user_id")
+			.references(() => user.id)
+			.unique(),
+		createdAt: timestamp("created_at", {
+			mode: "string",
+			withTimezone: true,
+		}).defaultNow(),
+		updatedAt: timestamp("updated_at", {
+			mode: "string",
+			withTimezone: true,
+		}).defaultNow(),
+	},
+	(table) => [uniqueIndex("plan_index_on_name_and_userid").on(table.userId)],
+);
+
 export const transactions = pgTable(
 	"transactions",
 	{
 		id: serial("id").primaryKey(),
-		amount: decimal("amount", { mode: "number" }).notNull(),
+		amount: decimal("amount", { mode: "number" }).notNull().default(0),
 		userId: text("user_id").references(() => user.id),
 		planId: integer("plan_id").references(() => plans.id),
 		nftSerial: integer("serial"),

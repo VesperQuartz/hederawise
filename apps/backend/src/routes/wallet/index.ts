@@ -1,4 +1,3 @@
-import to from "await-to-ts";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
@@ -29,17 +28,21 @@ export const wallet = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (c) => {
-			const payload = c.req.valid("json");
-			const user = c.get("user");
-			console.log("User", "user from API");
-			const wallet = new WalletService(new WalletStorage(db));
-			const [error, data] = await to(
-				wallet.createUserWallet({ ...payload, userId: user?.id }),
-			);
-			if (error) {
-				return c.json({ message: error.message }, 500);
+			try {
+				const payload = c.req.valid("json");
+				const user = c.get("user");
+				console.log("User", "user from API");
+				const wallet = new WalletService(new WalletStorage(db));
+				const data = await wallet.createUserWallet({
+					...payload,
+					userId: user?.id,
+				});
+				return c.json(data);
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : "An error occurred";
+				return c.json({ message }, 500);
 			}
-			return c.json(data);
 		},
 	)
 	.get(
@@ -58,15 +61,17 @@ export const wallet = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (c) => {
-			const user = c.get("user");
-			console.log("WALLET", user);
-			const wallet = new WalletService(new WalletStorage(db));
 			try {
+				const user = c.get("user");
+				console.log("WALLET", user);
+				const wallet = new WalletService(new WalletStorage(db));
 				const data = await wallet.getUserWallet({ userId: user!.id });
 				return c.json(data ?? null);
 			} catch (error) {
 				console.error(error);
-				return c.json({ message: error }, 500);
+				const message =
+					error instanceof Error ? error.message : "An error occurred";
+				return c.json({ message }, 500);
 			}
 		},
 	);
