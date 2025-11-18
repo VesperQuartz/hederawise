@@ -147,7 +147,7 @@ app.get(
 	}),
 );
 
-new cron.Cron("0 12 * * *", async () => {
+new cron.Cron("59 23 * * *", async () => {
 	const plan = new PlansService(new PlanStorage(db));
 	const token = new TokenService(
 		new TokenStorage(db),
@@ -165,6 +165,12 @@ new cron.Cron("0 12 * * *", async () => {
 	);
 	await plan.updateNextDueDate();
 	console.log("Cron job running", plans, new Date());
+});
+
+new cron.Cron("*/1 * * * *", async () => {
+	const plan = new PlansService(new PlanStorage(db));
+	const duePlans = await plan.getNextDuePlans();
+	console.log(duePlans, "Due Plans");
 });
 
 export default {

@@ -70,6 +70,27 @@ export class PlansService {
 		}
 	}
 
+	async updatePlanStatus(
+		planId: number,
+		status: "active" | "paused" | "completed" | "cancelled",
+	) {
+		try {
+			const update = await this.planStore.updatePlanStatus(planId, status);
+			return update;
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async getNextDuePlans() {
+		try {
+			const plans = await this.planStore.getDuePlans();
+			return plans;
+		} catch (error) {
+			throw error;
+		}
+	}
+
 	async updateNextDueDate() {
 		try {
 			const update = await this.planStore.updateNextDueDate();

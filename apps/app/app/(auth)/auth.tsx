@@ -22,13 +22,6 @@ const Auth = () => {
 					<Text className="text-white font-bold text-xl text-center">
 						Save with Hederawise, the only wealth management app you truly need.
 					</Text>
-					<Button
-						variant={"outline"}
-						className="bg-transparent"
-						onPress={() => router.push("/")}
-					>
-						<Text className="text-white">Home</Text>
-					</Button>
 				</View>
 				<Container>
 					<View className="flex gap-2">

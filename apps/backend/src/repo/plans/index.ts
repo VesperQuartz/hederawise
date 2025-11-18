@@ -17,7 +17,12 @@ export interface PlanImpl {
 		userid: string,
 	) => Promise<{ data: PlanSelect[]; totalAmount: number } | undefined>;
 	getScheduledPlans: () => Promise<PlanSelect[]>;
+	getDuePlans: () => Promise<PlanSelect[]>;
 	updatePlan: (plan: Partial<Plan>) => Promise<PlanSelect>;
+	updatePlanStatus: (
+		planId: number,
+		status: "active" | "paused" | "completed" | "cancelled",
+	) => Promise<PlanSelect>;
 	updateNextDueDate: () => Promise<PlanSelect[] | undefined>;
 }
 
@@ -87,6 +92,38 @@ export class PlanStorage implements PlanImpl {
 				),
 			});
 			return data ?? [];
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async getDuePlans() {
+		try {
+			const data = await this.planStore.query.plans.findMany({
+				where: and(
+					lte(plans.dueDate, new Date().toISOString()),
+					eq(plans.status, "active"),
+				),
+			});
+			return data ?? [];
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async updatePlanStatus(
+		planId: number,
+		status: "active" | "paused" | "completed" | "cancelled",
+	) {
+		try {
+			const data = await this.planStore
+				.update(plans)
+				.set({
+					status,
+				})
+				.where(eq(plans.id, planId))
+				.returning();
+			return data[0]!;
 		} catch (error) {
 			throw error;
 		}
