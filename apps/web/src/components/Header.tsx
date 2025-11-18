@@ -1,5 +1,3 @@
-import { Link } from "@tanstack/react-router";
-
 export default function Header() {
   return (
     <header className="flex items-center justify-between px-4 py-3 text-slate-100/90">
