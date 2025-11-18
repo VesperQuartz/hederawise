@@ -53,6 +53,21 @@ const DashboardLayout = () => {
 				}}
 			/>
 			<Tabs.Screen
+				name="(nft)"
+				options={{
+					tabBarIcon: ({ color, size, focused }) => (
+						<Ionicons
+							size={size}
+							color={"#2b7fff"}
+							name={focused ? "albums" : "albums-outline"}
+						/>
+					),
+					title: "Nft",
+					headerShown: false,
+					headerShadowVisible: false,
+				}}
+			/>
+			<Tabs.Screen
 				name="(stash)"
 				options={{
 					tabBarIcon: ({ color, size, focused }) => (

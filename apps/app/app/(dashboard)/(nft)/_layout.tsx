@@ -1,12 +1,12 @@
 import { Stack } from "expo-router";
 
-const StashLayout = () => {
+const NftLayout = () => {
 	return (
 		<Stack>
 			<Stack.Screen
-				name="stash"
+				name="nft"
 				options={{
-					title: "Stash",
+					title: "Nft",
 					headerTitleStyle: {
 						fontSize: 27,
 						color: "#0a2e65",
@@ -20,4 +20,4 @@ const StashLayout = () => {
 	);
 };
 
-export default StashLayout;
+export default NftLayout;

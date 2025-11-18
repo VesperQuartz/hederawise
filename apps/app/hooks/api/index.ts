@@ -38,7 +38,6 @@ export const userWalletQueryOptions = ({ token }: { token: string }) =>
 	queryOptions({
 		queryKey: ["userWallet", token],
 		queryFn: async () => {
-			console.log(token, "TOKEN");
 			const result = await parseResponse(
 				client.api.wallets.$get(
 					{},
@@ -326,6 +325,20 @@ export const createStashTransactionMutationOption = ({
 					{
 						json: stash,
 					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
+
+export const userNftInfoQueryOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["nftinfo"],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.tokens.nft.info.$get(
+					{},
 					{ headers: { Authorization: `Bearer ${token}` } },
 				),
 			);

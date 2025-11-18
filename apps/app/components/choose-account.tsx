@@ -47,7 +47,6 @@ export const StashAccount = ({
 		}),
 	);
 
-	console.log(userStash.data?.amount!, "AMA");
 	const form = useForm({
 		defaultValues: {
 			amount: "",

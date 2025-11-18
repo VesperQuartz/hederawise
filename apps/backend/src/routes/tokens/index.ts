@@ -1,3 +1,4 @@
+import { nftResponseSchema } from "@hederawise/shared/src/types";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
@@ -352,6 +353,42 @@ export const tokens = new Hono<{ Variables: AuthEnv }>()
 				console.error(error);
 				if (error instanceof Error) {
 					return ctx.json({ message: error.message }, 500);
+				}
+			}
+		},
+	)
+	.get(
+		"/nft/info",
+		describeRoute({
+			description: "Get nft token info for user",
+			responses: {
+				200: {
+					description: "Get nft token info for user",
+					content: {
+						"application/json": {
+							schema: resolver(nftResponseSchema),
+						},
+					},
+				},
+			},
+		}),
+		async (ctx) => {
+			try {
+				const user = ctx.get("user");
+				const token = new TokenService(
+					new TokenStorage(db),
+					new WalletService(new WalletStorage(db)),
+				);
+				const data = await token.getNftInfo({
+					userId: user?.id!,
+				});
+				return ctx.json(data);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof Error) {
+					return ctx.json({ message: error.message }, 500);
+				} else {
+					return ctx.json({ message: "Something went wrong" }, 500);
 				}
 			}
 		},

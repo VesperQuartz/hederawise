@@ -6,11 +6,15 @@ import {
 	TokenAssociateTransaction,
 	TokenCreateTransaction,
 	TokenMintTransaction,
+	TokenNftInfo,
+	TokenNftInfoQuery,
 	TokenSupplyType,
 	TokenType,
 	TransferTransaction,
 } from "@hashgraph/sdk";
 import { env } from "@hederawise/shared/src/env";
+import type { NftResponse } from "@hederawise/shared/src/types";
+import ky from "ky";
 import { client } from "@/lib/hedera";
 import type { TokenImpl } from "@/repo/token";
 import type { WalletImpl } from "@/repo/wallet";
@@ -365,5 +369,13 @@ export class TokenService {
 			console.error(error);
 			throw error;
 		}
+	}
+
+	async getNftInfo({ userId }: { userId: string }) {
+		const user = await this.walletStore?.getUserWallet({ userId });
+		const response = await ky(
+			`https://testnet.mirrornode.hedera.com/api/v1/accounts/${user?.accountId}/nfts`,
+		);
+		return response.json<NftResponse>();
 	}
 }
