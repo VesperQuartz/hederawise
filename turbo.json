@@ -3,7 +3,7 @@
 	"globalDependencies": [".envrc"],
 	"tasks": {
 		"build": {
-			"dependsOn": ["^build", "^prebuild"],
+			"dependsOn": ["^build"],
 			"outputs": ["dist/**"],
 			"inputs": ["$TURBO_DEFAULT$", ".envrc"]
 		},
