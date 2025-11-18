@@ -2,11 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { convertCurrency } from "@hederawise/shared/src/utils";
 import { useQuery } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
-import { ToastAndroid, View } from "react-native";
-import { RefreshControl, ScrollView } from "react-native-gesture-handler";
+import { Image } from "expo-image";
+import { Share, ToastAndroid, View } from "react-native";
+import {
+	Pressable,
+	RefreshControl,
+	ScrollView,
+} from "react-native-gesture-handler";
 import PagerView from "react-native-pager-view";
 import { AddCash } from "~/components/add-cash";
-import { Card, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Text } from "~/components/ui/text";
 import {
@@ -141,6 +146,56 @@ const Home = () => {
 						</CardHeader>
 					</Card>
 				</View>
+				<Pressable
+					onPress={async () => {
+						await Share.share({
+							message: "https://hederawise-backend.vercel.app",
+							url: "https://hederawise-backend.vercel.app",
+							title: "Hederawise",
+						});
+					}}
+				>
+					<View className="flex relative">
+						<Card className="bg-[#f48c0f] flex flex-row">
+							<CardContent className="flex flex-row">
+								<View className="flex flex-col w-72 gap-2">
+									<Text className="text-white text-xl">
+										Invite your{" "}
+										<Text className="text-[#ffea8f] text-xl">kids</Text> and{" "}
+										<Text className="text-[#ffea8f] text-xl">
+											younger siblings
+										</Text>{" "}
+										to become{" "}
+										<Text className="text-[#ffea8f] text-xl">
+											Hederawise User
+										</Text>
+										{"."}
+									</Text>
+									<View className="bg-[#feed93] flex  p-2 rounded-xl w-48">
+										<Text className="text-[#0a2e65] font-bold">
+											SHARE WITH THEM
+										</Text>
+									</View>
+								</View>
+								<View className="flex ">
+									<Image
+										style={{
+											width: 174,
+											height: 174,
+											overflow: "hidden",
+											right: -100,
+											resizeMode: "cover",
+											position: "absolute",
+										}}
+										source={{
+											uri: "https://images.lectuslab.online/painting.png",
+										}}
+									/>
+								</View>
+							</CardContent>
+						</Card>
+					</View>
+				</Pressable>
 				<AddCash />
 			</View>
 		</ScrollView>

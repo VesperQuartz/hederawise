@@ -6,9 +6,22 @@ const NftLayout = () => {
 			<Stack.Screen
 				name="nft"
 				options={{
-					title: "Nft",
+					title: "NFTs",
 					headerTitleStyle: {
 						fontSize: 27,
+						color: "#0a2e65",
+						fontWeight: "bold",
+						fontFamily: "montserrat",
+					},
+					headerShadowVisible: false,
+				}}
+			/>
+			<Stack.Screen
+				name="[tokenId]"
+				options={{
+					title: "NFT Details",
+					headerTitleStyle: {
+						fontSize: 20,
 						color: "#0a2e65",
 						fontWeight: "bold",
 						fontFamily: "montserrat",

@@ -82,6 +82,21 @@ const DashboardLayout = () => {
 					headerShadowVisible: false,
 				}}
 			/>
+			<Tabs.Screen
+				name="(profile)"
+				options={{
+					tabBarIcon: ({ color, size, focused }) => (
+						<Ionicons
+							size={size}
+							color={"#2b7fff"}
+							name={focused ? "person" : "person-outline"}
+						/>
+					),
+					title: "Profile",
+					headerShown: false,
+					headerShadowVisible: false,
+				}}
+			/>
 		</Tabs>
 	);
 };
