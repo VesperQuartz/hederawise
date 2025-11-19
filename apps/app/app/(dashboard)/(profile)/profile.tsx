@@ -1,15 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
+import * as Clipboard from "expo-clipboard";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { View, ScrollView, Pressable, ToastAndroid } from "react-native";
-import * as Clipboard from "expo-clipboard";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import {
+	Dimensions,
+	Pressable,
+	ScrollView,
+	ToastAndroid,
+	View,
+} from "react-native";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { authClient } from "~/lib/auth-client";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Text } from "~/components/ui/text";
 import { userWalletQueryOptions } from "~/hooks/api";
+import { authClient } from "~/lib/auth-client";
 import { useAuthStore } from "~/store/store";
 
 const Profile = () => {
@@ -19,6 +26,7 @@ const Profile = () => {
 	const wallet = useQuery(
 		userWalletQueryOptions({ token: session.data?.session.token! }),
 	);
+	const { width: screenWidth } = Dimensions.get("window");
 
 	const user = session.data?.user;
 	const userInitials = user?.name
@@ -36,96 +44,135 @@ const Profile = () => {
 		}
 	};
 
+	const copyToClipboard = async (text: string, label: string) => {
+		await Clipboard.setStringAsync(text);
+		ToastAndroid.showWithGravity(
+			`${label} copied to clipboard`,
+			ToastAndroid.SHORT,
+			ToastAndroid.CENTER,
+		);
+	};
+
+
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="p-4 gap-6">
-				{/* Profile Header */}
-				<Card className="border-slate-200 bg-white shadow-sm">
-					<CardContent className="p-6">
-						<View className="items-center gap-4">
-							<Avatar className="w-24 h-24">
-								<AvatarImage
-									source={{
-										uri: user?.image || undefined,
-									}}
-								/>
-								<AvatarFallback className="bg-blue-500">
-									<Text className="text-2xl font-bold text-white">
-										{userInitials.toUpperCase()}
-									</Text>
-								</AvatarFallback>
-							</Avatar>
-							<View className="items-center gap-1">
-								<Text className="text-2xl font-bold text-[#0a2e65]">
-									{user?.name || "User"}
-								</Text>
-								{user?.email && (
-									<Text className="text-sm text-slate-500">{user.email}</Text>
-								)}
-							</View>
-						</View>
-					</CardContent>
-				</Card>
+		<View className="flex-1">
 
-				{/* Account Information */}
-				<Card className="border-slate-200 bg-white shadow-sm">
-					<CardHeader>
-						<Text className="text-lg font-semibold text-[#0a2e65]">
-							Account Information
+			<LinearGradient
+				colors={["#1e3a8a", "#3b82f6", "#60a5fa"]}
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 1 }}
+				style={{ paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20 }}
+			>
+				<View className="items-center">
+					<View className="mb-4 relative">
+						<View className="absolute inset-0 bg-white/30 rounded-full blur-lg" />
+						<Avatar
+							alt=""
+							className="w-28 h-28 border-4 border-white/30 shadow-2xl"
+						>
+							<AvatarImage
+								source={{
+									uri: user?.image || undefined,
+								}}
+							/>
+							<AvatarFallback className="bg-purple-500">
+								<Text className="text-3xl font-bold text-white">
+									{userInitials.toUpperCase()}
+								</Text>
+							</AvatarFallback>
+						</Avatar>
+					</View>
+
+					<Text className="text-3xl font-bold text-white mb-2 text-center">
+						{user?.name || "User"}
+					</Text>
+					{user?.email && (
+						<Text className="text-lg text-white/80 mb-4 text-center">
+							{user.email}
 						</Text>
-					</CardHeader>
-					<CardContent className="gap-4">
-						{wallet.data?.accountId && (
-							<View className="gap-1">
-								<Text className="text-xs font-medium text-slate-500">
-									Hedera Account ID
-								</Text>
-								<View className="flex flex-row items-center justify-between">
-									<Text className="text-sm font-mono text-[#0a2e65] flex-1">
-										{wallet.data.accountId}
-									</Text>
-									<Pressable
-										onPress={async () => {
-											await Clipboard.setStringAsync(
-												wallet.data?.accountId!,
-											);
-											ToastAndroid.showWithGravity(
-												"Account ID copied",
-												ToastAndroid.SHORT,
-												ToastAndroid.CENTER,
-											);
-										}}
-									>
-										<Ionicons name="copy-outline" size={20} color="#2b7fff" />
-									</Pressable>
-								</View>
-							</View>
-						)}
-
-						{user?.email && (
-							<View className="gap-1">
-								<Text className="text-xs font-medium text-slate-500">Email</Text>
-								<Text className="text-sm text-slate-700">{user.email}</Text>
-							</View>
-						)}
-					</CardContent>
-				</Card>
-
-				{/* Logout Button */}
-				<View className="pt-4">
-					<Button
-						onPress={handleLogout}
-						className="bg-red-500 flex flex-row items-center justify-center"
-						variant="default"
-					>
-						<Ionicons name="log-out-outline" size={20} color="white" />
-						<Text className="text-white font-semibold ml-2">Logout</Text>
-					</Button>
+					)}
 				</View>
-			</View>
-		</ScrollView>
+			</LinearGradient>
+
+			<ScrollView
+				className="flex-1 bg-gray-50"
+				showsVerticalScrollIndicator={false}
+				style={{ marginTop: -20 }}
+			>
+				<View className="bg-gray-50 rounded-t-3xl pt-8 px-5">
+					{wallet.data?.accountId && (
+						<Card className="bg-white border-0 shadow-lg shadow-gray-200/50 rounded-2xl mb-6 overflow-hidden">
+							<LinearGradient
+								colors={["#f8fafc", "#ffffff"]}
+								style={{ padding: 24 }}
+							>
+								<View className="flex-row items-center mb-4">
+									<View className="w-10 h-10 bg-blue-100 rounded-2xl items-center justify-center mr-3">
+										<Ionicons name="wallet-outline" size={20} color="#3B82F6" />
+									</View>
+									<Text className="text-xl font-bold text-gray-900">
+										Wallet Details
+									</Text>
+								</View>
+
+								<View className="mb-4">
+									<Text className="text-sm font-semibold text-gray-500 mb-2">
+										Hedera Account ID
+									</Text>
+									<View className="bg-gray-50 rounded-xl p-4 flex-row items-center justify-between">
+										<Text className="text-base font-mono text-gray-800 flex-1 mr-3">
+											{wallet.data.accountId}
+										</Text>
+										<Pressable
+											onPress={() =>
+												copyToClipboard(wallet.data?.accountId!, "Account ID")
+											}
+											className="bg-blue-500 rounded-xl px-4 py-2 flex-row items-center"
+										>
+											<Ionicons name="copy-outline" size={16} color="white" />
+											<Text className="text-white font-semibold ml-1 text-sm">
+												Copy
+											</Text>
+										</Pressable>
+									</View>
+								</View>
+
+								{user?.email && (
+									<View>
+										<Text className="text-sm font-semibold text-gray-500 mb-2">
+											Email Address
+										</Text>
+										<View className="bg-gray-50 rounded-xl p-4 flex-row items-center justify-between">
+											<Text className="text-base text-gray-800 flex-1">
+												{user.email}
+											</Text>
+											<Ionicons
+												name="checkmark-circle"
+												size={20}
+												color="#10B981"
+											/>
+										</View>
+									</View>
+								)}
+							</LinearGradient>
+						</Card>
+					)}
+
+					<View className="pb-8">
+						<Pressable
+							onPress={handleLogout}
+							className="bg-red-500 rounded-2xl p-4 flex-row items-center justify-center shadow-lg"
+						>
+							<View className="w-8 h-8 bg-white/20 rounded-full items-center justify-center mr-3">
+								<Ionicons name="log-out-outline" size={18} color="white" />
+							</View>
+							<Text className="text-white font-bold text-lg">Sign Out</Text>
+						</Pressable>
+					</View>
+				</View>
+			</ScrollView>
+		</View>
 	);
 };
 
 export default Profile;
-

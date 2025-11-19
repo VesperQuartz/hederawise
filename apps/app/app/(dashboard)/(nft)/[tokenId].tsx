@@ -1,13 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
-import React from "react";
-import { View, ScrollView, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
+import * as Clipboard from "expo-clipboard";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import {
+	Dimensions,
+	Image,
+	Pressable,
+	ScrollView,
+	ToastAndroid,
+	View,
+} from "react-native";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Text } from "~/components/ui/text";
-import * as Clipboard from "expo-clipboard";
-import { ToastAndroid } from "react-native";
 
 type NftMetadata = {
 	name?: string;
@@ -18,11 +26,13 @@ type NftMetadata = {
 };
 
 const NftDetail = () => {
+	const router = useRouter();
 	const params = useLocalSearchParams<{
 		tokenId: string;
 		serialNumber: string;
 		metadata: string;
 	}>();
+	const screenWidth = Dimensions.get("window").width;
 
 	const decodeBase64 = (base64: string): string => {
 		try {
@@ -85,115 +95,156 @@ const NftDetail = () => {
 	};
 
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="p-4">
-				{/* Image Section */}
-				<Card className="mb-4 overflow-hidden border-slate-200 bg-white shadow-sm">
-					<CardContent className="p-0">
-						<View className="relative aspect-square w-full bg-slate-100">
-							{metadataQuery.isLoading ? (
-								<Skeleton className="h-full w-full" />
-							) : imageUrl ? (
-								<Image
-									source={{ uri: imageUrl }}
-									className="h-full w-full"
-									resizeMode="cover"
-								/>
-							) : (
-								<View className="flex h-full w-full items-center justify-center bg-blue-100">
-									<Text className="text-6xl">🎨</Text>
+		<ScrollView
+			className="flex-1 bg-white"
+			showsVerticalScrollIndicator={false}
+		>
+			<View className="flex flex-col gap-2">
+				{metadataQuery.isLoading ? (
+					<Skeleton style={{ width: screenWidth, height: screenWidth }} />
+				) : imageUrl ? (
+					<View className="relative">
+						<Image
+							source={{ uri: imageUrl }}
+							style={{ width: screenWidth, height: screenWidth }}
+							resizeMode="cover"
+						/>
+						<LinearGradient
+							colors={["transparent", "rgba(0,0,0,0.8)"]}
+							className="absolute bottom-0 left-0 right-0 h-32"
+						/>
+					</View>
+				) : (
+					<View
+						style={{ width: screenWidth, height: screenWidth }}
+						className="bg-linear-to-br from-purple-400 to-pink-400 items-center justify-center"
+					>
+						<View className="w-24 h-24 bg-white/20 rounded-full items-center justify-center">
+							<Ionicons name="image-outline" size={48} color="white" />
+						</View>
+					</View>
+				)}
+
+				<View className="absolute bottom-6 left-6 right-6">
+					{metadataQuery.isLoading ? (
+						<Skeleton className="h-8 w-3/4 rounded-lg" />
+					) : (
+						<>
+							<Text className="text-3xl font-bold text-white mb-2">
+								{metadata.name || `NFT #${params.serialNumber}`}
+							</Text>
+							<View className="flex-row items-center">
+								<View className="bg-green-500 rounded-full px-3 py-1 mr-3">
+									<Text className="text-white text-xs font-bold">OWNED</Text>
+								</View>
+								<Text className="text-white/90 text-sm">
+									#{params.serialNumber}
+								</Text>
+							</View>
+						</>
+					)}
+				</View>
+			</View>
+
+			<View className="p-2 flex gap-2">
+				{metadata.description && (
+					<Card className="bg-white border-0 shadow-lg shadow-black/5 rounded-3xl overflow-hidden">
+						<CardContent className="p-6">
+							<View className="flex-row items-center mb-4">
+								<View className="w-10 h-10 bg-blue-100 rounded-2xl items-center justify-center mr-3">
+									<Ionicons
+										name="document-text-outline"
+										size={20}
+										color="#3B82F6"
+									/>
+								</View>
+								<Text className="text-lg font-bold text-gray-900">
+									Description
+								</Text>
+							</View>
+							<Text className="text-gray-700 leading-6">
+								{metadata.description}
+							</Text>
+						</CardContent>
+					</Card>
+				)}
+
+				{(metadata.creator || metadata.type) && (
+					<Card className="bg-white border-0 shadow-lg shadow-black/5 rounded-3xl overflow-hidden">
+						<CardContent className="p-6">
+							<View className="flex-row items-center mb-4">
+								<View className="w-10 h-10 bg-purple-100 rounded-2xl items-center justify-center mr-3">
+									<Ionicons name="person-outline" size={20} color="#8B5CF6" />
+								</View>
+								<Text className="text-lg font-bold text-gray-900">
+									Creator Details
+								</Text>
+							</View>
+
+							{metadata.creator && (
+								<View className="mb-4 last:mb-0">
+									<Text className="text-sm font-semibold text-gray-500 mb-1">
+										Creator
+									</Text>
+									<Text className="text-base text-gray-900">
+										{metadata.creator}
+									</Text>
 								</View>
 							)}
-						</View>
-					</CardContent>
-				</Card>
 
-				{/* NFT Info */}
-				<Card className="mb-4 border-slate-200 bg-white shadow-sm">
-					<CardHeader>
-						{metadataQuery.isLoading ? (
-							<Skeleton className="h-8 w-3/4" />
-						) : (
-							<CardTitle className="text-2xl text-[#0a2e65]">
-								{metadata.name || `NFT #${params.serialNumber}`}
-							</CardTitle>
-						)}
-					</CardHeader>
-					<CardContent className="space-y-4">
-						{metadataQuery.isLoading ? (
-							<>
-								<Skeleton className="h-4 w-full" />
-								<Skeleton className="h-4 w-3/4" />
-							</>
-						) : (
-							<>
-								{metadata.description && (
-									<View>
-										<Text className="text-sm font-medium text-slate-500">
-											Description
-										</Text>
-										<Text className="mt-1 text-base text-slate-700">
-											{metadata.description}
-										</Text>
-									</View>
-								)}
+							{metadata.type && (
+								<View className="mb-4 last:mb-0">
+									<Text className="text-sm font-semibold text-gray-500 mb-1">
+										Type
+									</Text>
+									<Text className="text-base text-gray-900">
+										{metadata.type}
+									</Text>
+								</View>
+							)}
+						</CardContent>
+					</Card>
+				)}
 
-								{metadata.creator && (
-									<View>
-										<Text className="text-sm font-medium text-slate-500">
-											Creator
-										</Text>
-										<Text className="mt-1 text-base text-slate-700">
-											{metadata.creator}
-										</Text>
-									</View>
-								)}
-
-								{metadata.type && (
-									<View>
-										<Text className="text-sm font-medium text-slate-500">
-											Type
-										</Text>
-										<Text className="mt-1 text-base text-slate-700">
-											{metadata.type}
-										</Text>
-									</View>
-								)}
-							</>
-						)}
-					</CardContent>
-				</Card>
-
-				{/* Token Details */}
-				<Card className="mb-4 border-slate-200 bg-white shadow-sm">
-					<CardHeader>
-						<CardTitle className="text-lg text-[#0a2e65]">Token Details</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-3">
-						<View className="flex flex-row items-center justify-between">
-							<Text className="text-sm font-medium text-slate-500">
-								Token ID
+				<Card className="bg-white border-0 shadow-lg shadow-black/5 rounded-3xl overflow-hidden">
+					<CardContent className="p-6">
+						<View className="flex-row items-center mb-4">
+							<View className="w-10 h-10 bg-green-100 rounded-2xl items-center justify-center mr-3">
+								<Ionicons
+									name="information-circle-outline"
+									size={20}
+									color="#10B981"
+								/>
+							</View>
+							<Text className="text-lg font-bold text-gray-900">
+								Token Information
 							</Text>
-							<Pressable
-								onPress={() => copyToClipboard(params.tokenId, "Token ID")}
-								className="flex flex-row items-center gap-2"
-							>
-								<Text className="text-sm font-mono text-[#0a2e65]">
-									{params.tokenId.slice(0, 20)}...
+						</View>
+
+						<View className="space-y-4">
+							<View className="flex-row items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+								<Text className="text-sm font-semibold text-gray-500">
+									Token ID
 								</Text>
-								<Ionicons name="copy-outline" size={16} color="#2b7fff" />
-							</Pressable>
-						</View>
+								<Pressable
+									onPress={() => copyToClipboard(params.tokenId, "Token ID")}
+									className="flex-row items-center bg-blue-50 rounded-xl px-3 py-2"
+								>
+									<Text className="text-sm font-mono text-blue-800 mr-2">
+										{params.tokenId.slice(0, 12)}...
+									</Text>
+									<Ionicons name="copy-outline" size={16} color="#3B82F6" />
+								</Pressable>
+							</View>
 
-						<View className="h-px bg-slate-200" />
-
-						<View className="flex flex-row items-center justify-between">
-							<Text className="text-sm font-medium text-slate-500">
-								Serial Number
-							</Text>
-							<Text className="text-sm font-semibold text-[#0a2e65]">
-								#{params.serialNumber}
-							</Text>
+							<View className="flex-row items-center justify-between py-3">
+								<Text className="text-sm font-semibold text-gray-500">
+									Serial Number
+								</Text>
+								<Text className="text-base font-bold text-gray-900">
+									#{params.serialNumber}
+								</Text>
+							</View>
 						</View>
 					</CardContent>
 				</Card>
@@ -203,4 +254,3 @@ const NftDetail = () => {
 };
 
 export default NftDetail;
-
