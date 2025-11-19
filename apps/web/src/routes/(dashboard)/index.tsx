@@ -12,15 +12,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  type CarouselApi,
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 
 const imageUrl = [
   "https://images.lectuslab.online/welcome.png",
-  "https://images.lectuslab.online/dashboard.png",
+  "https://images.lectuslab.online/hbar.png",
+  "https://images.lectuslab.online/hwise.png",
 ];
 
 export const Route = createFileRoute("/(dashboard)/")({
@@ -75,7 +76,7 @@ function App() {
               className="bg-blue-500 hover:bg-blue-400 text-white shadow-lg shadow-blue-500/40 transition-transform duration-200 hover:-translate-y-0.5"
             >
               <a
-                href="https://example.com/download-hederawise"
+                href={import.meta.env.VITE_PUBLIC_DOWNLOAD_URL}
                 target="_blank"
                 rel="noreferrer"
               >
