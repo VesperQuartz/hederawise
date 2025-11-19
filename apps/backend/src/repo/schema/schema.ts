@@ -3,6 +3,7 @@ import to from "await-to-ts";
 import CryptoJs from "crypto-js";
 import { relations } from "drizzle-orm";
 import {
+	boolean,
 	customType,
 	decimal,
 	index,
@@ -56,7 +57,7 @@ export const wallet = pgTable(
 		createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
 		updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
 	},
-	(table) => [index("index_on_userid#3").on(table.userId)],
+	(table) => [index("index_on_userid#5").on(table.userId)],
 );
 
 export const plans = pgTable(
@@ -115,6 +116,52 @@ export const stash = pgTable(
 		}).defaultNow(),
 	},
 	(table) => [uniqueIndex("plan_index_on_name_and_userid").on(table.userId)],
+);
+
+export const nest = pgTable("nest", {
+	id: serial("id").primaryKey(),
+	amount: decimal("amount", { mode: "number" }),
+	image: text("image").default("https://images.lectuslab.online/mine.png"),
+	automated: boolean("automated").default(false),
+	interval: text("interval").$type<"day" | "week" | "month">().notNull(),
+	nextDueDate: timestamp("next_due_date", {
+		mode: "string",
+		withTimezone: true,
+	}).notNull(),
+	dueDate: timestamp("due_date", {
+		mode: "string",
+		withTimezone: true,
+	}).notNull(),
+	status: text("status")
+		.$type<"active" | "paused" | "completed" | "cancelled">()
+		.default("active"),
+	userId: text("user_id")
+		.references(() => user.id)
+		.unique(),
+	createdAt: timestamp("created_at", {
+		mode: "string",
+		withTimezone: true,
+	}).defaultNow(),
+	updatedAt: timestamp("updated_at", {
+		mode: "string",
+		withTimezone: true,
+	}).defaultNow(),
+});
+
+export const nest_transactions = pgTable(
+	"nest_transactions",
+	{
+		id: serial("id").primaryKey(),
+		amount: decimal("amount", { mode: "number" }).notNull().default(0),
+		userId: text("user_id").references(() => user.id),
+		nestId: integer("nest_id").references(() => nest.id),
+		status: text("status")
+			.$type<"pending" | "completed" | "cancelled">()
+			.default("pending"),
+		createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
+		updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
+	},
+	(table) => [index("index_on_userid#3").on(table.userId)],
 );
 
 export const transactions = pgTable(

@@ -1,14 +1,25 @@
+import { addYears, formatDate } from "date-fns";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { KeyboardAvoidingView, View } from "react-native";
+import { AddNestCash } from "~/components/add-nest-cash";
 import { Container } from "~/components/container";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 import { Text } from "~/components/ui/text";
 
 const CreateNest = () => {
-	const router = useRouter();
+	const params = useLocalSearchParams<{
+		firstName: string;
+		lastName: string;
+		birthDay: string;
+	}>();
+	console.log(params, "Params");
 	return (
-		<View className="flex flex-1 p-4 flex-col justify-end">
+		<KeyboardAvoidingView
+			behavior="position"
+			className="flex flex-1 p-4 flex-col justify-end"
+		>
 			<View>
 				<Image
 					style={{
@@ -20,32 +31,18 @@ const CreateNest = () => {
 				/>
 			</View>
 			<View className="flex flex-col gap-5">
-				<Text className="text-2xl font-black text-[#0a2e65]">Meet Nest</Text>
+				<View className="flex flex-row gap-2">
+					<Text className="text-2xl font-bold">{params.firstName}</Text>
+					<Text className="text-2xl opacity-40 font-bold">Nest</Text>
+				</View>
 				<Text className="text-[#0a2e65] opacity-60">
-					A secure investement account that grows with your little one.
+					Unlock on {params.firstName} 18th:
+					{formatDate(addYears(params.birthDay, 18), "PP")}
 				</Text>
-				<Text className="text-[#0a2e65] font-medium">
-					{"\u2B22" + " "}
-					Start with just your child name and ddate of birth
-				</Text>
-				<Text className="text-[#0a2e65] font-medium">
-					{"\u2B22" + " "}
-					Unlock on their 18th birthday so you can transfer it to them
-				</Text>
-				<Container>
-					<Button
-						className="bg-blue-500 h-14"
-						onPress={() => {
-							router.push({
-								pathname: "/nest-form",
-							});
-						}}
-					>
-						<Text className="text-xl font-bold">Start their joirney</Text>
-					</Button>
-				</Container>
+				<Separator />
+				<AddNestCash name={params.firstName} />
 			</View>
-		</View>
+		</KeyboardAvoidingView>
 	);
 };
 export default CreateNest;
