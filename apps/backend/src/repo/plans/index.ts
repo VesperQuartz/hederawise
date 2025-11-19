@@ -24,6 +24,7 @@ export interface PlanImpl {
 		status: "active" | "paused" | "completed" | "cancelled",
 	) => Promise<PlanSelect>;
 	updateNextDueDate: () => Promise<PlanSelect[] | undefined>;
+	updateNextDueDateById: (planId: string) => Promise<PlanSelect[] | undefined>;
 }
 
 export class PlanStorage implements PlanImpl {
@@ -143,6 +144,33 @@ export class PlanStorage implements PlanImpl {
 	}
 
 	async updateNextDueDate() {
+		try {
+			const data = await this.getScheduledPlans();
+			if (!data) return [];
+
+			const queries = data.map((plan) =>
+				this.planStore
+					.update(plans)
+					.set({
+						nextDueDate: createNextDueDate(
+							plan.interval,
+							plan.nextDueDate,
+						)?.toISOString(),
+					})
+					.where(eq(plans.id, plan.id!))
+					.returning(),
+			);
+
+			if (this.isTuple(queries)) {
+				const batch = await this.planStore.batch(queries);
+				return batch.flat();
+			}
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	async updateNextDueDateById(planId: string) {
 		try {
 			const data = await this.getScheduledPlans();
 			if (!data) return [];

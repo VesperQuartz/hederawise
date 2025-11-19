@@ -13,21 +13,21 @@ import type { AppStateStatus } from "react-native";
 import { AppState, Platform } from "react-native";
 import { useAuthStore } from "~/store/store";
 
-onlineManager.setEventListener((setOnline) => {
-	const eventSubscription = Network.addNetworkStateListener((state) => {
-		setOnline(!!state.isConnected);
-	});
-	return eventSubscription.remove;
-});
-
-const onAppStateChange = (status: AppStateStatus) => {
-	if (Platform.OS !== "web") {
-		focusManager.setFocused(status === "active");
-	}
-};
-
 // const ignorePaths = ["/login", "/register", "/welcome", "/onboard"];
 export const AsyncProvider = ({ children }: { children: React.ReactNode }) => {
+	onlineManager.setEventListener((setOnline) => {
+		const eventSubscription = Network.addNetworkStateListener((state) => {
+			setOnline(!!state.isConnected);
+		});
+		return eventSubscription.remove;
+	});
+
+	const onAppStateChange = (status: AppStateStatus) => {
+		if (Platform.OS !== "web") {
+			focusManager.setFocused(status === "active");
+		}
+	};
+
 	const navigation = useRouter();
 	const auth = useAuthStore();
 	const [queryClient] = React.useState(
@@ -59,7 +59,7 @@ export const AsyncProvider = ({ children }: { children: React.ReactNode }) => {
 			}),
 	);
 
-	React.useEffect(() => {
+	React?.useEffect(() => {
 		const subscription = AppState.addEventListener("change", onAppStateChange);
 		return () => subscription.remove();
 	}, []);

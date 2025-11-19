@@ -15,6 +15,7 @@ import { db } from "./lib/db";
 import { client } from "./lib/hedera";
 import { PlanStorage } from "./repo/plans";
 import { TokenStorage } from "./repo/token";
+import { TransactionRepo } from "./repo/transaction";
 import { WalletStorage } from "./repo/wallet";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
@@ -25,6 +26,7 @@ import { transactions } from "./routes/transactions";
 import { wallet } from "./routes/wallet";
 import { PlansService } from "./services/plans";
 import { TokenService } from "./services/token";
+import { TransactionsService } from "./services/transactions";
 import { WalletService } from "./services/wallet";
 
 const app = new Hono<{
@@ -149,21 +151,38 @@ app.get(
 
 new cron.Cron("59 23 * * *", async () => {
 	const plan = new PlansService(new PlanStorage(db));
+	const transaction = new TransactionsService(new TransactionRepo(db));
 	const token = new TokenService(
 		new TokenStorage(db),
 		new WalletService(new WalletStorage(db)),
 	);
+
 	const plans = await plan.getScheduledPlansToRun();
+
+	const result = await Promise.all(
+		plans.map(async (plan) => ({
+			...plan,
+			data: await token.tokenTransferCron({
+				userId: plan.userId!,
+				amount: plan.amount,
+			}),
+		})),
+	);
+
+	await plan.updateNextDueDate();
+
 	await Promise.all(
-		plans.map(
+		result.map(
 			async (plan) =>
-				await token.tokenTransferCron({
-					userId: plan.userId!,
+				await transaction.createTransaction({
+					planId: plan.id,
 					amount: plan.amount,
+					userId: plan.userId!,
+					status: "completed",
 				}),
 		),
 	);
-	await plan.updateNextDueDate();
+
 	console.log("Cron job running", plans, new Date());
 });
 

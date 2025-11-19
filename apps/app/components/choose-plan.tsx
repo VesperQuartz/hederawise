@@ -27,7 +27,7 @@ export const ChoosePlan = ({
 	const customPriceSheetRef = React.useRef<BottomSheetModal>(null);
 	console.log("Params", params);
 	return (
-		<Container>
+		<>
 			<CustomSheet sheetRef={sheetRef}>
 				<BottomSheetView
 					style={{
@@ -81,6 +81,6 @@ export const ChoosePlan = ({
 				</BottomSheetView>
 			</CustomSheet>
 			<CustomPrice sheetRef={customPriceSheetRef} />
-		</Container>
+		</>
 	);
 };

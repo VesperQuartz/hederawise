@@ -3,6 +3,7 @@ import { convertCurrency } from "@hederawise/shared/src/utils";
 import { useQuery } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
+import * as Linking from "expo-linking";
 import { Share, ToastAndroid, View } from "react-native";
 import {
 	Pressable,
@@ -11,6 +12,7 @@ import {
 } from "react-native-gesture-handler";
 import PagerView from "react-native-pager-view";
 import { AddCash } from "~/components/add-cash";
+import { NestCard } from "~/components/nest-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Text } from "~/components/ui/text";
@@ -148,6 +150,7 @@ const Home = () => {
 				</View>
 				<Pressable
 					onPress={async () => {
+						await Linking.openURL("https://wa.me/919988020025?text=Hello");
 						await Share.share({
 							message: "https://hederawise-backend.vercel.app",
 							url: "https://hederawise-backend.vercel.app",
@@ -197,6 +200,7 @@ const Home = () => {
 					</View>
 				</Pressable>
 				<AddCash />
+				<NestCard />
 			</View>
 		</ScrollView>
 	);

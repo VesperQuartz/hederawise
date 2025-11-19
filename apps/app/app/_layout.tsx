@@ -154,6 +154,27 @@ const RootLayout = () => {
 										headerShadowVisible: false,
 									}}
 								/>
+								<Stack.Screen
+									name="meet-nest"
+									options={{
+										headerTitle: "",
+										headerShadowVisible: false,
+									}}
+								/>
+								<Stack.Screen
+									name="nest-form"
+									options={{
+										headerTitle: "",
+										headerShadowVisible: false,
+									}}
+								/>
+								<Stack.Screen
+									name="create-nest"
+									options={{
+										headerTitle: "",
+										headerShadowVisible: false,
+									}}
+								/>
 							</Stack.Protected>
 							<Stack.Protected guard={!!!session.data}>
 								<Stack.Screen
