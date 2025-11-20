@@ -1,5 +1,4 @@
 import { env } from "@hederawise/shared/src/env";
-import to from "await-to-ts";
 import CryptoJs from "crypto-js";
 import { relations } from "drizzle-orm";
 import {
@@ -69,7 +68,7 @@ export const plans = pgTable(
 		amount: decimal("amount", { mode: "number" }).notNull(),
 		interval: text("interval")
 			.$type<"day" | "week" | "month" | "once">()
-			.notNull(),
+			.default("once"),
 		nextDueDate: timestamp("next_due_date", {
 			mode: "string",
 			withTimezone: true,
@@ -121,13 +120,16 @@ export const stash = pgTable(
 export const nest = pgTable("nest", {
 	id: serial("id").primaryKey(),
 	amount: decimal("amount", { mode: "number" }),
+	firstName: text("first_name").notNull(),
+	lastName: text("last_name").notNull(),
+	birthDay: text("birth_day").notNull(),
 	image: text("image").default("https://images.lectuslab.online/mine.png"),
 	automated: boolean("automated").default(false),
-	interval: text("interval").$type<"day" | "week" | "month">().notNull(),
+	interval: text("interval").$type<"day" | "week" | "month">(),
 	nextDueDate: timestamp("next_due_date", {
 		mode: "string",
 		withTimezone: true,
-	}).notNull(),
+	}),
 	dueDate: timestamp("due_date", {
 		mode: "string",
 		withTimezone: true,
@@ -135,9 +137,7 @@ export const nest = pgTable("nest", {
 	status: text("status")
 		.$type<"active" | "paused" | "completed" | "cancelled">()
 		.default("active"),
-	userId: text("user_id")
-		.references(() => user.id)
-		.unique(),
+	userId: text("user_id").references(() => user.id),
 	createdAt: timestamp("created_at", {
 		mode: "string",
 		withTimezone: true,
@@ -264,3 +264,20 @@ export const StashSchema = createInsertSchema(stash, {
 	amount: z.coerce.number<number>(),
 });
 export const StashSelectSchema = createSelectSchema(stash);
+
+export type Nest = typeof nest.$inferInsert;
+export type NestSelect = typeof nest.$inferSelect;
+export const NestSchema = createInsertSchema(nest, {
+	amount: z.coerce.number<number>(),
+	status: z.enum(["active", "paused", "completed", "cancelled"]),
+	interval: z.enum(["day", "week", "month"]).optional(),
+});
+export const NestSelectSchema = createSelectSchema(nest);
+
+export type NestTransaction = typeof nest_transactions.$inferInsert;
+export type NestTransactionSelect = typeof nest_transactions.$inferSelect;
+export const NestTransactionSchema = createInsertSchema(nest_transactions, {
+	status: z.enum(["pending", "completed", "cancelled"]),
+});
+export const NestTransactionSelectSchema =
+	createSelectSchema(nest_transactions);

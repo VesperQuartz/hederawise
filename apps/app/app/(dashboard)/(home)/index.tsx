@@ -18,6 +18,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Text } from "~/components/ui/text";
 import {
 	exchangeQueryOptions,
+	getUserPlanWithTQueryOptions,
 	userBalanceQueryOptions,
 	userWalletQueryOptions,
 } from "~/hooks/api";
@@ -27,6 +28,11 @@ const Home = () => {
 	const session = authClient.useSession();
 	const wallet = useQuery(
 		userWalletQueryOptions({ token: session.data?.session.token! }),
+	);
+	const userPlans = useQuery(
+		getUserPlanWithTQueryOptions({
+			token: session.data?.session.token!,
+		}),
 	);
 	const balance = useQuery(
 		userBalanceQueryOptions({
@@ -47,6 +53,7 @@ const Home = () => {
 					onRefresh={() => {
 						balance.refetch();
 						wallet.refetch();
+						userPlans.refetch();
 					}}
 				/>
 			}

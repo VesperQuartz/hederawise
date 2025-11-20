@@ -16,9 +16,11 @@ type AuthState = {
 
 type Plan = InferRequestType<typeof client.api.plans.$post>["json"] | undefined;
 
+type PlanWithId = Plan & { planId: number | undefined };
+
 type PlanState = {
-	data: Plan;
-	updatePlan: (plan: Omit<Partial<Plan>, "status">) => void;
+	data: PlanWithId | undefined;
+	updatePlan: (plan: Partial<PlanWithId> | undefined) => void;
 	clearPlan: () => void;
 };
 

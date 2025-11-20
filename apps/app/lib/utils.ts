@@ -20,12 +20,12 @@ export const durationToDate = (
 		.with("3 months", () => addMonths(new Date(), 3))
 		.with("6 months", () => addMonths(new Date(), 6))
 		.with("9 months", () => addMonths(new Date(), 9))
-		.with("1 year", () => addYears(new Date(), 1))
+		.with("1 years", () => addYears(new Date(), 1))
 		.otherwise(() => undefined);
 };
 
 export const calculateFutureAmount = (
-	interval: "once" | "day" | "week" | "month",
+	interval: "once" | "daily" | "weekly" | "monthly",
 	dueDate: Date,
 	amount: number,
 ) => {
@@ -33,13 +33,13 @@ export const calculateFutureAmount = (
 		.with("once", () => {
 			return amount;
 		})
-		.with("day", () => {
+		.with("daily", () => {
 			return differenceInDays(dueDate, new Date()) * amount;
 		})
-		.with("week", () => {
+		.with("weekly", () => {
 			return differenceInWeeks(dueDate, new Date()) * amount;
 		})
-		.with("month", () => {
+		.with("monthly", () => {
 			return differenceInMonths(dueDate, new Date()) * amount;
 		})
 		.exhaustive();

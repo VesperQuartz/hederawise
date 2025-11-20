@@ -19,6 +19,7 @@ import { TransactionRepo } from "./repo/transaction";
 import { WalletStorage } from "./repo/wallet";
 import { accounts } from "./routes/accounts";
 import { lookups } from "./routes/lookups";
+import { nest } from "./routes/nest";
 import { plans } from "./routes/plans";
 import { stash } from "./routes/stash";
 import { tokens } from "./routes/tokens";
@@ -82,6 +83,7 @@ export const routes = app
 	.route("/", lookups)
 	.route("/", plans)
 	.route("/", stash)
+	.route("/", nest)
 	.route("/", transactions)
 	.get("/healthcheck", (c) => {
 		return c.json({

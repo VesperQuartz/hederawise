@@ -55,9 +55,11 @@ const Summary = () => {
 								}
 							},
 							onSuccess: async (data) => {
+								console.log("TSERIAL", data);
 								await nft.mutateAsync(
 									{
-										tokenSerial: data.serials,
+										//@ts-ignore
+										tokenSerial: Number(data.serials),
 									},
 									{
 										onError: (error) => {
@@ -71,12 +73,14 @@ const Summary = () => {
 											}
 										},
 										onSuccess: async (data) => {
+											console.log("NFT1", data);
 											await transfer.mutateAsync(
 												{
 													amount: Number(planStore.data?.amount)!,
 													status: "completed",
-													planId: planStore.data?.id!,
-													nftSerial: data.serials,
+													planId: planStore.data?.planId!,
+													//@ts-ignore
+													nftSerial: Number(data.serials),
 												},
 												{
 													onSuccess: async () => {
@@ -144,6 +148,7 @@ const Summary = () => {
 						</Text>
 						<Text className="text-md text-green-500 font-bold">
 							{calculateFutureAmount(
+								//@ts-ignore
 								planStore.data?.interval!,
 								planStore.data?.dueDate!,
 								Number(planStore.data?.amount!),

@@ -1,10 +1,12 @@
 import { useForm, useStore } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx";
+import { addYears } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, ToastAndroid, View } from "react-native";
 import { z } from "zod";
+import { createNestMutationOption } from "~/hooks/api";
 import { authClient } from "~/lib/auth-client";
 import { Container } from "./container";
 import { Button } from "./ui/button";
@@ -14,13 +16,18 @@ import { Text } from "./ui/text";
 const options = [10, 15, 20, 25, 30, 40];
 
 export const AddNestCash = ({ name }: { name: string }) => {
+	const sessions = authClient.useSession();
+	const nest = useMutation(
+		createNestMutationOption({
+			token: sessions.data?.session.token!,
+		}),
+	);
 	const params = useLocalSearchParams<{
 		firstName: string;
 		lastName: string;
 		birthDay: string;
 	}>();
 
-	const sessions = authClient.useSession();
 	const [showInput, setShowInput] = React.useState(false);
 	const router = useRouter();
 	const form = useForm({
@@ -35,9 +42,28 @@ export const AddNestCash = ({ name }: { name: string }) => {
 					.transform((value) => Number(value)),
 			}),
 		},
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
 			console.log(values.value, "VALUE");
-			router.replace("/");
+			await nest.mutateAsync(
+				{
+					amount: Number(values.value.amount),
+					birthDay: params.birthDay,
+					firstName: params.firstName,
+					lastName: params.lastName,
+					status: "active",
+					dueDate: addYears(params.birthDay, 18).toISOString(),
+				},
+				{
+					onSuccess: () => {
+						ToastAndroid.showWithGravity(
+							"Successfully create nest",
+							ToastAndroid.SHORT,
+							ToastAndroid.BOTTOM,
+						);
+						router.replace("/");
+					},
+				},
+			);
 		},
 	});
 

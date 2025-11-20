@@ -1,10 +1,8 @@
 import { addYears, formatDate } from "date-fns";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { KeyboardAvoidingView, View } from "react-native";
 import { AddNestCash } from "~/components/add-nest-cash";
-import { Container } from "~/components/container";
-import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Text } from "~/components/ui/text";
 

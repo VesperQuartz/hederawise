@@ -148,23 +148,21 @@ export class PlanStorage implements PlanImpl {
 			const data = await this.getScheduledPlans();
 			if (!data) return [];
 
-			const queries = data.map((plan) =>
-				this.planStore
-					.update(plans)
-					.set({
-						nextDueDate: createNextDueDate(
-							plan.interval,
-							plan.nextDueDate,
-						)?.toISOString(),
-					})
-					.where(eq(plans.id, plan.id!))
-					.returning(),
+			const queries = await Promise.all(
+				data.map((plan) =>
+					this.planStore
+						.update(plans)
+						.set({
+							nextDueDate: createNextDueDate(
+								plan.interval,
+								plan.nextDueDate,
+							)?.toISOString(),
+						})
+						.where(eq(plans.id, plan.id!))
+						.returning(),
+				),
 			);
-
-			if (this.isTuple(queries)) {
-				const batch = await this.planStore.batch(queries);
-				return batch.flat();
-			}
+			return queries[0];
 		} catch (error) {
 			throw error;
 		}
@@ -175,23 +173,21 @@ export class PlanStorage implements PlanImpl {
 			const data = await this.getScheduledPlans();
 			if (!data) return [];
 
-			const queries = data.map((plan) =>
-				this.planStore
-					.update(plans)
-					.set({
-						nextDueDate: createNextDueDate(
-							plan.interval,
-							plan.nextDueDate,
-						)?.toISOString(),
-					})
-					.where(eq(plans.id, plan.id!))
-					.returning(),
+			const queries = await Promise.all(
+				data.map((plan) =>
+					this.planStore
+						.update(plans)
+						.set({
+							nextDueDate: createNextDueDate(
+								plan.interval,
+								plan.nextDueDate,
+							)?.toISOString(),
+						})
+						.where(eq(plans.id, plan.id!))
+						.returning(),
+				),
 			);
-
-			if (this.isTuple(queries)) {
-				const batch = await this.planStore.batch(queries);
-				return batch.flat();
-			}
+			return queries[0];
 		} catch (error) {
 			throw error;
 		}

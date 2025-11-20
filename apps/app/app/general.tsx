@@ -17,19 +17,25 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-
 import { Text } from "~/components/ui/text";
 import { planMutationOptions, planQueryOptions } from "~/hooks/api";
 import { authClient } from "~/lib/auth-client";
 import { durationToDate } from "~/lib/utils";
 import { usePlanStore } from "~/store/store";
 
+const intervalMap = {
+	daily: "day",
+	weekly: "week",
+	monthly: "month",
+	once: "once",
+} as const;
+
 const General = () => {
 	const session = authClient.useSession();
-	const planStore = usePlanStore();
 	const plan = useMutation(
 		planMutationOptions({ token: session.data?.session.token! }),
 	);
+	const planStore = usePlanStore();
 	const [checked, setChecked] = React.useState(false);
 	const router = useRouter();
 	const [interval, setInterval] = React.useState<
@@ -39,6 +45,7 @@ const General = () => {
 		"3 months" | "6 months" | "9 months" | "1 years" | (string & {}) | undefined
 	>(undefined);
 	const queryClient = useQueryClient();
+	console.log("Interval", interval, checked);
 
 	React.useEffect(() => {
 		if (checked) {
@@ -47,19 +54,18 @@ const General = () => {
 			setInterval(undefined);
 		}
 	}, [checked]);
+
 	const form = useForm({
 		defaultValues: {
 			amount: planStore.data?.amount.toString() ?? "10",
 		},
 		onSubmit: async (values) => {
-			console.log("Value", values.value);
 			if (!interval) {
 				ToastAndroid.showWithGravity(
 					"Please select an interval",
 					ToastAndroid.SHORT,
 					ToastAndroid.CENTER,
 				);
-
 				return;
 			}
 			if (!duration) {
@@ -70,20 +76,29 @@ const General = () => {
 				);
 				return;
 			}
+
+			// Map UI values to database values
 			planStore.updatePlan({
 				...planStore.data,
-				amount: Number(values.value.amount),
-				interval: checked ? "once" : (planStore.data?.interval! ?? "once"),
+				amount: values.value.amount,
+				interval: intervalMap[interval as keyof typeof intervalMap],
 				dueDate: durationToDate(duration),
 			});
+
+			console.log(
+				"PS",
+				planStore.data,
+				intervalMap[interval as keyof typeof intervalMap],
+			);
 			await plan.mutateAsync(
 				{
 					...planStore.data!,
+					interval: intervalMap[interval as keyof typeof intervalMap],
 					status: "active",
 				},
 				{
 					onSuccess: (data) => {
-						planStore.updatePlan({ ...planStore.data!, id: data.id });
+						planStore.updatePlan({ ...planStore.data!, planId: data.id });
 						ToastAndroid.showWithGravity(
 							"Plan created successfully",
 							ToastAndroid.SHORT,
@@ -120,7 +135,9 @@ const General = () => {
 			}),
 		},
 	});
+
 	console.log("Store", planStore.data);
+
 	return (
 		<View className="p-4 flex flex-col justify-between flex-1">
 			<View className="flex flex-col gap-16">
@@ -147,13 +164,17 @@ const General = () => {
 				<View className="flex flex-col gap-5">
 					<Label className="text-[#0a2e65] text-2xl opacity-50">Every</Label>
 					<View className="flex flex-row gap-2 items-center">
-						{["day", "week", "month"].map((item) => {
+						{["daily", "weekly", "monthly"].map((item) => {
 							return (
 								<Pressable
 									key={item}
 									onPress={() => {
 										setInterval(item);
 										setChecked(false);
+										planStore.updatePlan({
+											...planStore.data!,
+											interval: item as any,
+										});
 									}}
 								>
 									<Badge
@@ -185,12 +206,18 @@ const General = () => {
 				<View className="flex flex-col gap-5">
 					<Label className="text-[#0a2e65] text-2xl opacity-50">For</Label>
 					<View className="flex flex-row gap-2 items-center">
-						{["3 months", "6 months", "9 months", "1 year"].map((item) => {
+						{["3 months", "6 months", "9 months", "1 years"].map((item) => {
 							return (
 								<Pressable
 									key={item}
 									onPress={() => {
-										setDuration(item);
+										setDuration(
+											item as "3 months" | "6 months" | "9 months" | "1 years",
+										);
+										planStore.updatePlan({
+											...planStore.data!,
+											dueDate: durationToDate(item)!,
+										});
 									}}
 								>
 									<Badge

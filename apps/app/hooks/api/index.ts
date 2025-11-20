@@ -345,3 +345,21 @@ export const userNftInfoQueryOptions = ({ token }: { token: string }) =>
 			return result;
 		},
 	});
+
+export const createNestMutationOption = ({ token }: { token: string }) =>
+	mutationOptions({
+		mutationKey: ["nest"],
+		mutationFn: async (
+			nest: InferRequestType<typeof client.api.nests.$post>["json"],
+		) => {
+			const result = await parseResponse(
+				client.api.nests.$post(
+					{
+						json: nest,
+					},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});
