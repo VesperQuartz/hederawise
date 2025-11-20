@@ -50,10 +50,16 @@ export const AddCash = () => {
 							}
 							amount.setAmount(option);
 							if (!savingsPlan.data) {
-								planStore.updatePlan({ ...planStore.data, amount: option });
+								planStore.updatePlan({
+									...planStore.data,
+									amount: option.toString(),
+								});
 								router.push("/choose-plan");
 							} else {
-								planStore.updatePlan({ ...planStore.data, amount: option });
+								planStore.updatePlan({
+									...planStore.data,
+									amount: option.toString(),
+								});
 								choosePlanSheetRef.current?.present();
 							}
 						}}

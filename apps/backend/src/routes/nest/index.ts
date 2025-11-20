@@ -30,9 +30,10 @@ export const nest = new Hono<{ Variables: AuthEnv }>()
 			},
 		}),
 		async (c) => {
-			const lookup = new ApiService();
+			const user = c.get("user");
+			const nest = new NestService(new RepoFactory());
 			try {
-				const data = await lookup.getExchangeRate();
+				const data = await nest.getUserNest(user?.id!);
 				return c.json(data);
 			} catch (error) {
 				if (error instanceof Error) {

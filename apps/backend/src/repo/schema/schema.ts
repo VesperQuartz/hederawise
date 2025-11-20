@@ -123,7 +123,7 @@ export const nest = pgTable("nest", {
 	firstName: text("first_name").notNull(),
 	lastName: text("last_name").notNull(),
 	birthDay: text("birth_day").notNull(),
-	image: text("image").default("https://images.lectuslab.online/mine.png"),
+	image: text("image").default("https://images.lectuslab.online/baby.png"),
 	automated: boolean("automated").default(false),
 	interval: text("interval").$type<"day" | "week" | "month">(),
 	nextDueDate: timestamp("next_due_date", {

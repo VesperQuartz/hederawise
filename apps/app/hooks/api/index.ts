@@ -363,3 +363,17 @@ export const createNestMutationOption = ({ token }: { token: string }) =>
 			return result;
 		},
 	});
+
+export const userNestQueryTOptions = ({ token }: { token: string }) =>
+	queryOptions({
+		queryKey: ["nest", token],
+		queryFn: async () => {
+			const result = await parseResponse(
+				client.api.nests.$get(
+					{},
+					{ headers: { Authorization: `Bearer ${token}` } },
+				),
+			);
+			return result;
+		},
+	});

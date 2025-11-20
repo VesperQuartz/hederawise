@@ -49,4 +49,10 @@ export class NestService {
 			throw new Error("Failed to create nest");
 		}
 	}
+
+	async getUserNest(userId: string) {
+		const factory = this.factory.createNestFactory(db);
+		const nest = await factory.getNextByUserId(userId);
+		return nest;
+	}
 }

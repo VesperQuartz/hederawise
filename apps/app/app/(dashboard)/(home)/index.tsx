@@ -12,6 +12,7 @@ import {
 } from "react-native-gesture-handler";
 import PagerView from "react-native-pager-view";
 import { AddCash } from "~/components/add-cash";
+import { Nest } from "~/components/nest";
 import { NestCard } from "~/components/nest-card";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -20,6 +21,7 @@ import {
 	exchangeQueryOptions,
 	getUserPlanWithTQueryOptions,
 	userBalanceQueryOptions,
+	userNestQueryTOptions,
 	userWalletQueryOptions,
 } from "~/hooks/api";
 import { authClient } from "~/lib/auth-client";
@@ -40,6 +42,13 @@ const Home = () => {
 			accountId: wallet.data?.accountId!,
 		}),
 	);
+
+	const userNest = useQuery(
+		userNestQueryTOptions({
+			token: session.data?.session.token!,
+		}),
+	);
+
 	const exchange = useQuery(
 		exchangeQueryOptions({
 			token: session.data?.session.token!,
@@ -207,7 +216,7 @@ const Home = () => {
 					</View>
 				</Pressable>
 				<AddCash />
-				<NestCard />
+				{!userNest.data ? <NestCard /> : <Nest />}
 			</View>
 		</ScrollView>
 	);
