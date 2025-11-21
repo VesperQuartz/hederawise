@@ -1,7 +1,7 @@
 # HederaWise - Project Details
 
 ## Project Description
-HederaWise is a blockchain-based savings platform built on Hedera that enables parents to create secure "nest" savings accounts for their children. These accounts automatically unlock when the child turns 18, combining traditional savings with DeFi principles. The platform features cross-platform mobile and web applications, NFT integration, and customizable savings plans, making long-term financial planning accessible and transparent through blockchain technology.
+HederaWise is a comprehensive DeFi savings platform built on Hedera featuring the **$HWISE** fungible token. Users can create customizable savings plans, "nest" accounts (including but not limited to children's savings), and manage their stash (personal savings account). When users deposit HBAR, they receive $HWISE tokens that are locked in their savings goals, providing a tokenized savings experience with automated payouts, NFT rewards, and cross-platform accessibility through mobile and web applications.
 
 ## Selected Hackathon Track
 **Theme 2: DeFi & Tokenization - Basic Problem Statement (DeFi & Tokenization)**
@@ -12,6 +12,8 @@ Traditional savings accounts for children lack transparency, have low interest r
 
 ### Blockchain & DeFi Infrastructure
 - **Hedera Hashgraph** - Primary blockchain network for transactions and smart contracts
+- **$HWISE Token** - Custom fungible token (HW symbol) for tokenized savings
+- **$HWISENFT** - NFT token (HWNFT symbol) for milestone rewards and achievements
 - **Hedera SDK (@hashgraph/sdk)** - JavaScript SDK for blockchain interactions
 - **Hedera Testnet** - Development and testing environment
 
@@ -49,9 +51,6 @@ Traditional savings accounts for children lack transparency, have low interest r
 - **Zod** - Schema validation
 
 ### Additional Services
-- **Nodemailer** - Email service integration
-- **MJML** - Email template framework
-- **Expo Router** - File-based routing for mobile
 - **React Native MMKV** - Fast key-value storage
 - **Croner** - Cron job scheduling
 
